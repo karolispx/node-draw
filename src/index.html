@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>ChatJS</title>
+
+    <meta charset="utf-8"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
+
+    <link rel="stylesheet" href="//stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css">
+    <link rel="stylesheet" href="//stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" type="text/css" href="./assets/css/style.css" />
+</head>
+
+<body>
+    <div class="container">
+        <h1>Let's Chat!</h1>
+
+        <div id="chat-container">
+            <div class="row">
+                <div class="col-md-4" id="chat-sidebar">
+                    <div id="chat-sidebar-content">
+                        <h2>Post a New Message</h2>
+
+                        <form id="chat-form">
+                            <div class="form-group">
+                                <div id="chat-name-new">
+                                    <label for="chat-name">Your Name:</label>
+                                    <input type="text" maxlength="20" class="form-control" id="chat-name" name="chat-name" placeholder="Enter Your name" required>
+                                </div>
+
+                                <div id="chat-name-saved">
+                                    <span id="chat-name-saved-text">Posting as:</span>
+                                    <span id="chat-name-saved-value"></span>
+                                    <button id="chat-form-reset-button" class="btn btn-primary" onclick="return false;"><i class="fa fa-times"></i></button>
+                                </div>
+                            </div>
+
+                            <br />
+
+                            <div class="form-group">
+                                <label for="chat-message">Enter Your Message:</label>
+
+                                <textarea maxlength="200" class="form-control" id="chat-message" name="chat-message" placeholder="Type in your message" rows="6" required></textarea>
+                                <div id="count-message-length"></div>
+                            </div>
+
+                            <br />
+
+                            <div class="form-group">
+                                <button id="chat-form-submit-button" class="btn btn-primary" type="submit">Post Message</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <div class="col-md-8" id="chat-messages">
+                    <div id="chat-messages-content">
+                        <h2>Messages</h2>
+
+                        <div id="chat-message-list">
+                            <div class="no-messages"><p>No messages could be found. Post something!</p></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="//cdnjs.cloudflare.com/ajax/libs/popper.js/1.11.0/umd/popper.min.js"></script>
+
+    <script src="//code.jquery.com/jquery-3.3.1.min.js" crossorigin="anonymous"></script>
+    <script src="//stackpath.bootstrapcdn.com/bootstrap/4.2.1/js/bootstrap.min.js"></script>
+
+    <script type="text/javascript" src="./socket.io/socket.io.js"></script>
+    <script type="text/javascript" src="./assets/js/scripts.js"></script>
+</body>
+</html>
