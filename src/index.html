@@ -34,60 +34,42 @@
     <div class="sidenav-left">
         <h1>Let's Draw!</h1>
 
-        <div class="sidenav-widget">
-            <h2>Discussion</h2>
+        <div class="sidenav-widget canvas-controls">
+            <div class="toolbar-helpers">
+                <button class="btn btn-primary tool-selector toolbar-helper" data-tool="brush"><i class="fa fa-paint-brush"></i> Draw</button>
 
-            <form id="sidebar-chat">
-                <div class="input-group">
-                    <input type="text" class="form-control" placeholder="Your message">
+                <button class="btn btn-secondary tool-selector toolbar-helper" data-tool="eraser"><i class="fa fa-eraser"></i> Erase</button>
 
-                    <div class="input-group-append">
-                        <button type="button" class="btn btn-primary">Send</button>
+                <button class="btn btn-danger toolbar-helper" id="clear-canvas"><i class="fa fa-refresh"></i> Clear All</button>
+            </div>
+
+            <hr />
+
+            <div class="canvas-controls-group-eraser">
+                <div class="canvas-controls-group-first">
+                    <div class="form-group">
+                        <label for="erasersize-slider-area">Eraser Size:</label>
+                        <input id="erasersize-slider-area" data-slider-id='erasersize-slider' type="text" data-slider-min="1" data-slider-max="500" data-slider-step="1" data-slider-value="20"/>
                     </div>
-                </div>
-            </form>
-
-            <div class="sidebar-chat">
-                <div class="sidebar-chat-message message-outgoing">
-                    <p class="sidebar-chat-message-user">Karolis <span>at 6.34pm</span></p>
-                    <p>Hey dude how are you doing haven't seen you for a long time!</p>
-                </div>
-
-                <div class="sidebar-chat-message message-incoming">
-                    <p class="sidebar-chat-message-user">Edvinas <span>at 4.34pm</span></p>
-                    <p>I'm good how are you?</p>
-                </div>
-
-                <div class="sidebar-chat-message message-incoming">
-                    <p class="sidebar-chat-message-user">Edvinas <span>at 4.34pm</span></p>
-                    <p>Haha funny</p>
                 </div>
             </div>
-        </div>
-    </div>
 
 
-    <div class="main-content">
-        <div class="top-toolbar">
-            <div class="row">
-                <div class="col-md-4">
+            <div class="canvas-controls-group-draw">
+                <div class="canvas-controls-group-first">
+                    <div class="form-group">
+                        <label for="size-slider-area">Stroke Size:</label>
+                        <input id="size-slider-area" data-slider-id='size-slider' type="text" data-slider-min="1" data-slider-max="500" data-slider-step="1" data-slider-value="20"/>
+                    </div>
+
                     <div class="form-group">
                         <label for="tool-color-selector">Color:</label>
-                        <input id="tool-color-selector" type="text" class="form-control" value=""/>
-
-                        <hr />
-
-                        <label for="size-slider-area">Size:</label>
-                        <input id="size-slider-area" data-slider-id='size-slider' type="text" data-slider-min="1" data-slider-max="100" data-slider-step="1" data-slider-value="10"/>
-
-                        <hr />
-
-                        <label for="opacity-slider-area">Opacity:</label>
-                        <input id="opacity-slider-area" data-slider-id='opacity-slider' type="text" data-slider-min="0.01" data-slider-max="1" data-slider-step="0.01" data-slider-value="1"/>
+                        <input id="tool-color-selector" type="hidden" class="form-control" value=""/>
                     </div>
                 </div>
 
-                <div class="col-md-4">
+
+                <div class="canvas-controls-group">
                     <div class="form-group">
                         <label for="tool-effect">Effect:</label>
 
@@ -112,9 +94,9 @@
                             <option value="color">color</option>
                             <option value="luminosity">luminosity</option>
                         </select>
+                    </div>
 
-                        <hr />
-
+                    <div class="form-group">
                         <label for="linejoin-type">Line Join:</label>
 
                         <select id="linejoin-type">
@@ -122,9 +104,9 @@
                             <option value="miter">miter</option>
                             <option value="bevel">bevel</option>
                         </select>
+                    </div>
 
-                        <hr />
-
+                    <div class="form-group">
                         <label for="linecap-type">Line Cap:</label>
 
                         <select id="linecap-type">
@@ -133,66 +115,88 @@
                             <option value="square">square</option>
                         </select>
                     </div>
+
+                    <div class="form-group disable-tools-area">
+                        <label><input id="disable-tool-effects" type="checkbox" value="0"> Disable effects</label>
+                    </div>
                 </div>
 
-                <div class="col-md-4 top-toolbar-shadow-settings">
+
+                <div class="canvas-controls-group">
                     <div class="form-group">
                         <label for="shadowcolor-input-area">Shadow Color:</label>
-                        <input id="shadowcolor-input-area" type="text" class="form-control"/>
+                        <input id="shadowcolor-input-area" type="hidden" class="form-control"/>
+                    </div>
 
-                        <hr />
-
-                        <label for="shadowoffsetx-slider-area">Shadow X-Axis:</label>
-                        <input id="shadowoffsetx-slider-area" data-slider-id='shadowoffsetx-slider' type="text" data-slider-min="-100" data-slider-max="100" data-slider-step="1" data-slider-value="0"/>
-
-                        <hr />
-
-                        <label for="shadowoffsety-slider-area">Shadow Y-Axis:</label>
-                        <input id="shadowoffsety-slider-area" data-slider-id='shadowoffsety-slider' type="text" data-slider-min="-100" data-slider-max="100" data-slider-step="1" data-slider-value="0"/>
-
-                        <hr />
-
+                    <div class="form-group">
                         <label for="shadowblur-slider-area">Shadow Blur:</label>
                         <input id="shadowblur-slider-area" data-slider-id='shadowblur-slider' type="text" data-slider-min="0" data-slider-max="200" data-slider-step="1" data-slider-value="0"/>
                     </div>
-                </div>
-            </div>
 
-            <div class="toolbar-helpers">
-                <div class="row">
-                    <div class="col-md-4">
-                        <button class="btn btn-primary tool-selector toolbar-helper" data-tool="brush"><i class="fa fa-paint-brush"></i> Draw Something!</button>
+                    <div class="form-group">
+                        <label for="shadowoffsetx-slider-area">Shadow X-Axis:</label>
+                        <input id="shadowoffsetx-slider-area" data-slider-id='shadowoffsetx-slider' type="text" data-slider-min="-100" data-slider-max="100" data-slider-step="1" data-slider-value="0"/>
                     </div>
 
-                    <div class="col-md-4">
-                        <button class="btn btn-secondary tool-selector toolbar-helper" data-tool="eraser"><i class="fa fa-eraser"></i> Erase Things!</button>
+                    <div class="form-group">
+                        <label for="shadowoffsety-slider-area">Shadow Y-Axis:</label>
+                        <input id="shadowoffsety-slider-area" data-slider-id='shadowoffsety-slider' type="text" data-slider-min="-100" data-slider-max="100" data-slider-step="1" data-slider-value="0"/>
+                    </div>
+
+                    <div class="form-group disable-tools-area">
+                        <label><input id="disable-tool-shadow" type="checkbox" value="0"> Disable shadow</label>
                     </div>
                 </div>
             </div>
         </div>
+    </div>
 
 
+
+    <div class="main-content">
         <div id="canvas-container">
             <canvas id="canvas"></canvas>
         </div>
 
-
-        <div class="bottom-toolbar">
-            <div class="row">
-                <div class="col-md-6 text-align-left">
-                    <div class="form-group">
-                        <label for="canvas-background-color">Canvas Background Color:</label>
-                        <input id="canvas-background-color" type="text" class="form-control" value="rgb(255, 255, 255, 1)"/>
-                    </div>
-                </div>
-
-                <div class="col-md-6 text-align-right">
-                    <button class="btn btn-danger toolbar-helper" id="clear-canvas"><i class="fa fa-refresh"></i> Clear Canvas</button>
-                </div>
+        <div class="canvas-toolbar">
+            <div class="form-group">
+                <label for="canvas-background-color">Canvas Background Color:</label>
+                <input id="canvas-background-color" type="hidden" class="form-control" value="rgb(255, 255, 255, 1)"/>
             </div>
         </div>
-
     </div>
+
+
+
+    <!--<h2>Discussion</h2>-->
+
+    <!--<form id="sidebar-chat">-->
+        <!--<div class="input-group">-->
+            <!--<input type="text" class="form-control" placeholder="Your message">-->
+
+            <!--<div class="input-group-append">-->
+                <!--<button type="button" class="btn btn-primary">Send</button>-->
+            <!--</div>-->
+        <!--</div>-->
+    <!--</form>-->
+
+    <!--<div class="sidebar-chat">-->
+        <!--<div class="sidebar-chat-message message-outgoing">-->
+            <!--<p class="sidebar-chat-message-user">Karolis <span>at 6.34pm</span></p>-->
+            <!--<p>Hey dude how are you doing haven't seen you for a long time!</p>-->
+        <!--</div>-->
+
+        <!--<div class="sidebar-chat-message message-incoming">-->
+            <!--<p class="sidebar-chat-message-user">Edvinas <span>at 4.34pm</span></p>-->
+            <!--<p>I'm good how are you?</p>-->
+        <!--</div>-->
+
+        <!--<div class="sidebar-chat-message message-incoming">-->
+            <!--<p class="sidebar-chat-message-user">Edvinas <span>at 4.34pm</span></p>-->
+            <!--<p>Haha funny</p>-->
+        <!--</div>-->
+    <!--</div>-->
+    <!---->
 
 
     <script src="//code.jquery.com/jquery-3.3.1.min.js" crossorigin="anonymous"></script>

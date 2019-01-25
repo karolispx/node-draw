@@ -20,70 +20,74 @@ h1 {
     margin-left: 550px;
     margin-right: 50px;
     padding: 0 10px;
-    padding-top: 20px;
+    padding-top: 50px;
     margin-bottom: 100px;
 }
 
-.main-content .slider-track {
+.canvas-controls .slider-track {
     background: #e0e0e0;
 }
 
-.main-content .slider-selection {
+.canvas-controls .slider-selection {
     background: #BABABA;
 }
 
-.main-content select, .main-content input {
+.canvas-controls select, .canvas-controls input[type="text"],
+.main-content select, .main-content input[type="text"] {
     background: #fff;
-    width: 200px;
+    width: 240px;
 }
 
-.main-content input:disabled {
-    cursor: not-allowed;
-}
-
-.main-content label {
+.canvas-controls label{
     font-weight: bold;
-    min-width: 100px;
-    margin-right: 20px;
+    min-width: 150px;
 }
 
-.top-toolbar-shadow-settings label {
-    width: 140px;
-}
-
-.main-content input.form-control {
+.canvas-controls input[type="text"].form-control,
+.main-content input[type="text"].form-control {
     display: inline-block;
 }
 
-.main-content .slider {
-    width: 200px;
+.disable-tools-area {
+    margin-left: 150px;
+    font-size: 15px;
 }
 
-.top-toolbar {
+
+.canvas-controls .slider {
+    width: 240px;
+}
+
+.canvas-controls-group-draw,
+.canvas-controls-group-eraser {
+    padding-top: 15px;
+}
+
+.canvas-controls-group-eraser {
+    display: none;
+}
+
+.canvas-controls-group {
+    padding-top: 30px;
+    margin-top: 30px;
+    border-top: 1px solid #d6d6d6;
+}
+
+.canvas-toolbar {
     border: 1px solid #a9a7a7;
-    padding: 20px;
+    padding: 5px 20px;
     background: #fbfbfb;
-    margin-top: 20px;
+    margin-top: 10px;
 }
 
-.top-toolbar hr {
-    margin-top: 6px;
-    margin-bottom: 6px;
+.canvas-toolbar .form-group {
+    margin: 4px 0 0 0;
 }
 
-.bottom-toolbar {
-    border: 1px solid #a9a7a7;
-    padding: 10px 20px;
-    background: #fbfbfb;
-    text-align: center;
-}
-
-.bottom-toolbar .form-group {
-    margin: 0;
-}
-
-.bottom-toolbar label {
-    display: block;
+.canvas-toolbar label {
+    font-weight: bold;
+    min-width: 100px;
+    margin-right: 20px;
 }
 
 .sidenav-left {
@@ -164,40 +168,50 @@ h1 {
 }
 
 
-.minicolors-theme-default .minicolors-input {
-    width: 200px;
-    padding: 13px;
-    padding-left: 26px;
+
+.canvas-controls-group-draw .minicolors-theme-default.minicolors {
+    width: 240px;
+}
+
+
+.minicolors-theme-default.minicolors {
+    border: 1px solid black;
+}
+
+.minicolors-swatch.minicolors-sprite.minicolors-input-swatch {
+    width: 100%;
+    background: white;
+    height: 28px;
+    border: 0;
+}
+
+.minicolors-theme-default .minicolors-swatch {
+    height: 26px;
 }
 
 
 
-.size-slider-area {
-    margin: 3px 30px;
-    margin-left: 150px;
-    margin-bottom: 0;
-    display: block;
+.canvas-toolbar {
+
 }
 
 .toolbar-helpers {
-    margin-top: -65px;
-    padding: 30px 0 10px 0;
+    text-align: center;
+    padding: 10px;
 }
 
-.toolbar-helper {
-    width: 90%;
+.toolbar-helpers .toolbar-helper {
+    margin: 5px 10px;
 }
 
-#clear-canvas {
-    width: 100%;
-    font-size: 24px;
-    padding-top: 10px;
-    padding-bottom: 10px;
+.toolbar-helpers .toolbar-helper.btn-primary {
+    border: 1px dashed #fbff01;
+    outline: 2px dotted green;
 }
 
 #canvas-container {
     width: 100%;
-    height: 500px;
+    height: 700px;
 }
 
 canvas {
