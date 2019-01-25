@@ -1,78 +1,207 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>ChatJS</title>
+    <title>Let's Draw!</title>
 
     <meta charset="utf-8"/>
     <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
 
     <link rel="stylesheet" href="//stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css">
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/bootstrap-slider/10.6.0/css/bootstrap-slider.css">
     <link rel="stylesheet" href="//stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
-    <link rel="stylesheet" type="text/css" href="./assets/css/style.css" />
+    <link rel="stylesheet" type="text/css" href="./assets/css/jquery.minicolors.css">
+    <link rel="stylesheet" type="text/css" href="./assets/css/style.css">
 </head>
 
 <body>
-    <div class="container">
-        <h1>Let's Chat!</h1>
+    <div class="page-preloader">
+        <div class="page-preloader-center">
+            <div class="page-preloader-center-absolute">
+                <div class="object object_one"></div>
+                <div class="object object_two"></div>
+                <div class="object object_three"></div>
+                <div class="object object_four"></div>
+                <div class="object object_five"></div>
+                <div class="object object_six"></div>
+                <div class="object object_seven"></div>
+                <div class="object object_eight"></div>
+                <div class="object object_big"></div>
+            </div>
+        </div>
+    </div>
 
-        <div id="chat-container">
-            <div class="row">
-                <div class="col-md-4" id="chat-sidebar">
-                    <div id="chat-sidebar-content">
-                        <h2>Post a New Message</h2>
+    <div class="sidenav-left">
+        <h1>Let's Draw!</h1>
 
-                        <form id="chat-form">
-                            <div class="form-group">
-                                <div id="chat-name-new">
-                                    <label for="chat-name">Your Name:</label>
-                                    <input type="text" maxlength="20" class="form-control" id="chat-name" name="chat-name" placeholder="Enter Your name" required>
-                                </div>
+        <div class="sidenav-widget">
+            <h2>Discussion</h2>
 
-                                <div id="chat-name-saved">
-                                    <span id="chat-name-saved-text">Posting as:</span>
-                                    <span id="chat-name-saved-value"></span>
-                                    <button id="chat-form-reset-button" class="btn btn-primary" onclick="return false;"><i class="fa fa-times"></i></button>
-                                </div>
-                            </div>
+            <form id="sidebar-chat">
+                <div class="input-group">
+                    <input type="text" class="form-control" placeholder="Your message">
 
-                            <br />
-
-                            <div class="form-group">
-                                <label for="chat-message">Enter Your Message:</label>
-
-                                <textarea maxlength="200" class="form-control" id="chat-message" name="chat-message" placeholder="Type in your message" rows="6" required></textarea>
-                                <div id="count-message-length"></div>
-                            </div>
-
-                            <br />
-
-                            <div class="form-group">
-                                <button id="chat-form-submit-button" class="btn btn-primary" type="submit">Post Message</button>
-                            </div>
-                        </form>
+                    <div class="input-group-append">
+                        <button type="button" class="btn btn-primary">Send</button>
                     </div>
                 </div>
+            </form>
 
-                <div class="col-md-8" id="chat-messages">
-                    <div id="chat-messages-content">
-                        <h2>Messages</h2>
+            <div class="sidebar-chat">
+                <div class="sidebar-chat-message message-outgoing">
+                    <p class="sidebar-chat-message-user">Karolis <span>at 6.34pm</span></p>
+                    <p>Hey dude how are you doing haven't seen you for a long time!</p>
+                </div>
 
-                        <div id="chat-message-list">
-                            <div class="no-messages"><p>No messages could be found. Post something!</p></div>
-                        </div>
-                    </div>
+                <div class="sidebar-chat-message message-incoming">
+                    <p class="sidebar-chat-message-user">Edvinas <span>at 4.34pm</span></p>
+                    <p>I'm good how are you?</p>
+                </div>
+
+                <div class="sidebar-chat-message message-incoming">
+                    <p class="sidebar-chat-message-user">Edvinas <span>at 4.34pm</span></p>
+                    <p>Haha funny</p>
                 </div>
             </div>
         </div>
     </div>
 
-    <script src="//cdnjs.cloudflare.com/ajax/libs/popper.js/1.11.0/umd/popper.min.js"></script>
+
+    <div class="main-content">
+        <div class="top-toolbar">
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label for="tool-color-selector">Color:</label>
+                        <input id="tool-color-selector" type="text" class="form-control" value=""/>
+
+                        <hr />
+
+                        <label for="size-slider-area">Size:</label>
+                        <input id="size-slider-area" data-slider-id='size-slider' type="text" data-slider-min="1" data-slider-max="100" data-slider-step="1" data-slider-value="10"/>
+
+                        <hr />
+
+                        <label for="opacity-slider-area">Opacity:</label>
+                        <input id="opacity-slider-area" data-slider-id='opacity-slider' type="text" data-slider-min="0.01" data-slider-max="1" data-slider-step="0.01" data-slider-value="1"/>
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label for="tool-effect">Effect:</label>
+
+                        <select id="tool-effect">
+                            <option value="source-over">ource-over (default)</option>
+                            <option value="destination-over">destination-over</option>
+                            <option value="lighter">lighter</option>
+                            <option value="xor">xor</option>
+                            <option value="multiply">multiply</option>
+                            <option value="screen">screen</option>
+                            <option value="overlay">overlay</option>
+                            <option value="darken">darken</option>
+                            <option value="lighten">lighten</option>
+                            <option value="color-dodge">color-dodge</option>
+                            <option value="color-burn">color-burn</option>
+                            <option value="hard-light">hard-light</option>
+                            <option value="soft-light">soft-light</option>
+                            <option value="difference">difference</option>
+                            <option value="exclusion">exclusion</option>
+                            <option value="hue">hue</option>
+                            <option value="saturation">saturation</option>
+                            <option value="color">color</option>
+                            <option value="luminosity">luminosity</option>
+                        </select>
+
+                        <hr />
+
+                        <label for="linejoin-type">Line Join:</label>
+
+                        <select id="linejoin-type">
+                            <option value="round">round (default)</option>
+                            <option value="miter">miter</option>
+                            <option value="bevel">bevel</option>
+                        </select>
+
+                        <hr />
+
+                        <label for="linecap-type">Line Cap:</label>
+
+                        <select id="linecap-type">
+                            <option value="round">round (default)</option>
+                            <option value="butt">butt</option>
+                            <option value="square">square</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="col-md-4 top-toolbar-shadow-settings">
+                    <div class="form-group">
+                        <label for="shadowcolor-input-area">Shadow Color:</label>
+                        <input id="shadowcolor-input-area" type="text" class="form-control"/>
+
+                        <hr />
+
+                        <label for="shadowoffsetx-slider-area">Shadow X-Axis:</label>
+                        <input id="shadowoffsetx-slider-area" data-slider-id='shadowoffsetx-slider' type="text" data-slider-min="-100" data-slider-max="100" data-slider-step="1" data-slider-value="0"/>
+
+                        <hr />
+
+                        <label for="shadowoffsety-slider-area">Shadow Y-Axis:</label>
+                        <input id="shadowoffsety-slider-area" data-slider-id='shadowoffsety-slider' type="text" data-slider-min="-100" data-slider-max="100" data-slider-step="1" data-slider-value="0"/>
+
+                        <hr />
+
+                        <label for="shadowblur-slider-area">Shadow Blur:</label>
+                        <input id="shadowblur-slider-area" data-slider-id='shadowblur-slider' type="text" data-slider-min="0" data-slider-max="200" data-slider-step="1" data-slider-value="0"/>
+                    </div>
+                </div>
+            </div>
+
+            <div class="toolbar-helpers">
+                <div class="row">
+                    <div class="col-md-4">
+                        <button class="btn btn-primary tool-selector toolbar-helper" data-tool="brush"><i class="fa fa-paint-brush"></i> Draw Something!</button>
+                    </div>
+
+                    <div class="col-md-4">
+                        <button class="btn btn-secondary tool-selector toolbar-helper" data-tool="eraser"><i class="fa fa-eraser"></i> Erase Things!</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+        <div id="canvas-container">
+            <canvas id="canvas"></canvas>
+        </div>
+
+
+        <div class="bottom-toolbar">
+            <div class="row">
+                <div class="col-md-6 text-align-left">
+                    <div class="form-group">
+                        <label for="canvas-background-color">Canvas Background Color:</label>
+                        <input id="canvas-background-color" type="text" class="form-control" value="rgb(255, 255, 255, 1)"/>
+                    </div>
+                </div>
+
+                <div class="col-md-6 text-align-right">
+                    <button class="btn btn-danger toolbar-helper" id="clear-canvas"><i class="fa fa-refresh"></i> Clear Canvas</button>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
 
     <script src="//code.jquery.com/jquery-3.3.1.min.js" crossorigin="anonymous"></script>
     <script src="//stackpath.bootstrapcdn.com/bootstrap/4.2.1/js/bootstrap.min.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/bootstrap-slider/10.6.0/bootstrap-slider.min.js"></script>
+    <script src="//cdn.rawgit.com/jwarby/jquery-awesome-cursor/master/dist/jquery.awesome-cursor.min.js"></script>
 
     <script type="text/javascript" src="./socket.io/socket.io.js"></script>
+    <script type="text/javascript" src="./assets/js/jquery.minicolors.min.js"></script>
     <script type="text/javascript" src="./assets/js/scripts.js"></script>
 </body>
 </html>

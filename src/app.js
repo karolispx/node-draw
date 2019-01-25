@@ -40,25 +40,9 @@ function response (req, res) {
 io.on('connection', (socket) => {
     socket.on('send message', ({ message, name }, callback) => {
         if (message && name) {
-            let currentDate = getCurrentDate()
-
-            io.sockets.emit('update messages', { message, name, currentDate })
+            io.sockets.emit('update messages', { message, name })
 
             callback()
         }
     })
 })
-
-function getCurrentDate () {
-    let date = new Date()
-
-    let hour = date.getHours()
-    let min = date.getMinutes()
-    let sec = date.getSeconds()
-
-    hour = (hour < 10 ? '0' : '') + hour
-    min = (min < 10 ? '0' : '') + min
-    sec = (sec < 10 ? '0' : '') + sec
-
-    return hour + ':' + min + ':' + sec
-}
