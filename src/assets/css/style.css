@@ -149,18 +149,63 @@ h1 {
 
 
 
+#canvas-color-picker-modal .modal-dialog {
+    margin: auto;
+    max-width: 800px;
+}
+
+.modal-color-picker {
+    padding: 10px;
+    width: 100%;
+    margin: auto;
+}
+
+.modal-color-picker .modal-color-picker-item {
+    cursor: pointer;
+    height: 150px;
+    margin: 10px 5px;
+    background: #ffffff;
+    outline: 1px solid #888686;
+    border: 4px solid transparent;
+    opacity: 0.8;
+    transform: scale( 0.8 );
+    transition: .4s;
+    text-align: center;
+}
+
+.modal-color-picker .modal-color-picker-item.item-selected {
+    border: 8px solid #777474;
+    opacity: 1;
+    transform: scale( 1 );
+}
+
+.modal-color-picker .modal-color-picker-item span {
+    opacity: 0.8;
+    text-align: center;
+    display: block;
+    width: 100%;
+    padding: 5px;
+    background: white;
+    font-size: 1.8em;
+    margin-top: 5px;
+    font-weight: bold;
+    border: 1px solid #777474;
+}
 
 
 
 
-#canvas-settings-modal .settings-group {
+
+
+
+.canvas-modal .settings-group {
     border-radius: 3px;
     background: #fafafa;
     border: 1px solid #d6d6d6;
     padding: 10px;
 }
 
-#canvas-settings-modal .settings-group h4 {
+.canvas-modal .settings-group h4 {
     padding-bottom: 20px;
     margin-bottom: 20px;
     text-align: center;
@@ -168,11 +213,11 @@ h1 {
     padding-top: 10px;
 }
 
-#canvas-settings-modal .settings-group .form-group {
+.canvas-modal .settings-group .form-group {
     margin: 15px 0;
 }
 
-#canvas-settings-modal .settings-group .form-group label {
+.canvas-modal .settings-group .form-group label {
     width: 250px;
     font-weight: bold;
 }

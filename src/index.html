@@ -53,7 +53,7 @@
                 <div class="canvas-controls-group">
                     <div class="form-group">
                         <label for="eraser-size-slider">Eraser Size:</label>
-                        <input id="eraser-size-slider" data-slider-id='eraser-size-slider' type="text" data-slider-min="1" data-slider-max="200" data-slider-step="1" data-slider-value="25"/>
+                        <input id="eraser-size-slider" data-slider-id='eraser-size-slider' type="text" data-slider-min="1" data-slider-max="300" data-slider-step="1" data-slider-value="25"/>
                     </div>
                 </div>
             </div>
@@ -63,7 +63,7 @@
                 <div class="canvas-controls-group">
                     <div class="form-group">
                         <label for="brush-size-slider">Brush Size:</label>
-                        <input id="brush-size-slider" data-slider-id='brush-size-slider' type="text" data-slider-min="1" data-slider-max="200" data-slider-step="1" data-slider-value="25"/>
+                        <input id="brush-size-slider" data-slider-id='brush-size-slider' type="text" data-slider-min="1" data-slider-max="300" data-slider-step="1" data-slider-value="25"/>
                     </div>
 
                     <div class="form-group">
@@ -146,8 +146,7 @@
     </div>
 
 
-
-    <div class="modal fade" id="canvas-settings-modal" tabindex="-1" role="dialog">
+    <div class="modal fade canvas-modal" id="canvas-settings-modal" tabindex="-1" role="dialog">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header">
@@ -197,6 +196,53 @@
                             <div class="row">
                                 <div class="col-md-12 text-align-center">
                                     <button class="btn btn-info" id="download-canvas-image"><i class="fa fa-download"></i> Download Image</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+    <div class="modal fade canvas-modal" id="canvas-color-picker-modal" tabindex="-1" role="dialog">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Canvas Color Picker</h5>
+
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+
+                <div class="modal-body">
+
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="modal-color-picker">
+                                <div class="row">
+                                    <div class="col-md-3"><div class="modal-color-picker-item"></div></div>
+                                    <div class="col-md-3"><div class="modal-color-picker-item"></div></div>
+                                    <div class="col-md-3"><div class="modal-color-picker-item"></div></div>
+                                    <div class="col-md-3"><div class="modal-color-picker-item"></div></div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-md-3"><div class="modal-color-picker-item"></div></div>
+                                    <div class="col-md-3"><div class="modal-color-picker-item"></div></div>
+                                    <div class="col-md-3"><div class="modal-color-picker-item"></div></div>
+                                    <div class="col-md-3"><div class="modal-color-picker-item"></div></div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-md-3"><div class="modal-color-picker-item"></div></div>
+                                    <div class="col-md-3"><div class="modal-color-picker-item"></div></div>
+                                    <div class="col-md-3"><div class="modal-color-picker-item"></div></div>
+                                    <div class="col-md-3"><div class="modal-color-picker-item"></div></div>
                                 </div>
                             </div>
                         </div>
