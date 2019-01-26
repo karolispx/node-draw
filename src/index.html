@@ -14,6 +14,7 @@
     <link rel="stylesheet" type="text/css" href="./assets/css/style.css">
 </head>
 
+
 <body>
     <div class="page-preloader">
         <div class="page-preloader-center">
@@ -36,115 +37,80 @@
 
         <div class="sidenav-widget canvas-controls">
             <div class="toolbar-helpers">
-                <button class="btn btn-primary tool-selector toolbar-helper" data-tool="brush"><i class="fa fa-paint-brush"></i> Draw</button>
+                <div class="row">
+                    <div class="col-md-6">
+                        <button id="tool-brush-button" class="btn btn-primary tool-selector toolbar-helper disabled"><i class="fa fa-paint-brush"></i> Brush</button>
+                    </div>
 
-                <button class="btn btn-secondary tool-selector toolbar-helper" data-tool="eraser"><i class="fa fa-eraser"></i> Erase</button>
-
-                <button class="btn btn-danger toolbar-helper" id="clear-canvas"><i class="fa fa-refresh"></i> Clear All</button>
+                    <div class="col-md-6">
+                        <button id="tool-eraser-button" class="btn btn-secondary tool-selector toolbar-helper"><i class="fa fa-eraser"></i> Eraser</button>
+                    </div>
+                </div>
             </div>
 
-            <hr />
 
             <div class="canvas-controls-group-eraser">
-                <div class="canvas-controls-group-first">
+                <div class="canvas-controls-group">
                     <div class="form-group">
-                        <label for="erasersize-slider-area">Eraser Size:</label>
-                        <input id="erasersize-slider-area" data-slider-id='erasersize-slider' type="text" data-slider-min="1" data-slider-max="500" data-slider-step="1" data-slider-value="20"/>
+                        <label for="eraser-size-slider">Eraser Size:</label>
+                        <input id="eraser-size-slider" data-slider-id='eraser-size-slider' type="text" data-slider-min="1" data-slider-max="200" data-slider-step="1" data-slider-value="25"/>
                     </div>
                 </div>
             </div>
 
 
             <div class="canvas-controls-group-draw">
-                <div class="canvas-controls-group-first">
-                    <div class="form-group">
-                        <label for="size-slider-area">Stroke Size:</label>
-                        <input id="size-slider-area" data-slider-id='size-slider' type="text" data-slider-min="1" data-slider-max="500" data-slider-step="1" data-slider-value="20"/>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="tool-color-selector">Color:</label>
-                        <input id="tool-color-selector" type="hidden" class="form-control" value=""/>
-                    </div>
-                </div>
-
-
                 <div class="canvas-controls-group">
                     <div class="form-group">
-                        <label for="tool-effect">Effect:</label>
-
-                        <select id="tool-effect">
-                            <option value="source-over">ource-over (default)</option>
-                            <option value="destination-over">destination-over</option>
-                            <option value="lighter">lighter</option>
-                            <option value="xor">xor</option>
-                            <option value="multiply">multiply</option>
-                            <option value="screen">screen</option>
-                            <option value="overlay">overlay</option>
-                            <option value="darken">darken</option>
-                            <option value="lighten">lighten</option>
-                            <option value="color-dodge">color-dodge</option>
-                            <option value="color-burn">color-burn</option>
-                            <option value="hard-light">hard-light</option>
-                            <option value="soft-light">soft-light</option>
-                            <option value="difference">difference</option>
-                            <option value="exclusion">exclusion</option>
-                            <option value="hue">hue</option>
-                            <option value="saturation">saturation</option>
-                            <option value="color">color</option>
-                            <option value="luminosity">luminosity</option>
-                        </select>
+                        <label for="brush-size-slider">Brush Size:</label>
+                        <input id="brush-size-slider" data-slider-id='brush-size-slider' type="text" data-slider-min="1" data-slider-max="200" data-slider-step="1" data-slider-value="25"/>
                     </div>
 
                     <div class="form-group">
-                        <label for="linejoin-type">Line Join:</label>
-
-                        <select id="linejoin-type">
-                            <option value="round">round (default)</option>
-                            <option value="miter">miter</option>
-                            <option value="bevel">bevel</option>
-                        </select>
+                        <label for="brush-color-picker">Brush Color:</label>
+                        <input id="brush-color-picker" type="hidden" class="form-control" value=""/>
                     </div>
 
                     <div class="form-group">
-                        <label for="linecap-type">Line Cap:</label>
+                        <label for="brush-opacity-slider">Brush Opacity:</label>
+                        <input id="brush-opacity-slider" data-slider-id='brush-opacity-slider' type="text" data-slider-min="0.1" data-slider-max="1" data-slider-step="0.01" data-slider-value="1"/>
+                    </div>
 
-                        <select id="linecap-type">
+                    <div class="form-group">
+                        <label for="brush-line-cap-dropdown">Line Cap:</label>
+
+                        <select id="brush-line-cap-dropdown">
                             <option value="round">round (default)</option>
                             <option value="butt">butt</option>
                             <option value="square">square</option>
                         </select>
                     </div>
-
-                    <div class="form-group disable-tools-area">
-                        <label><input id="disable-tool-effects" type="checkbox" value="0"> Disable effects</label>
-                    </div>
                 </div>
 
 
                 <div class="canvas-controls-group">
                     <div class="form-group">
-                        <label for="shadowcolor-input-area">Shadow Color:</label>
-                        <input id="shadowcolor-input-area" type="hidden" class="form-control"/>
+                        <label for="brush-shadow-color-picker">Shadow Color:</label>
+                        <input id="brush-shadow-color-picker" type="hidden" class="form-control"/>
                     </div>
 
                     <div class="form-group">
-                        <label for="shadowblur-slider-area">Shadow Blur:</label>
-                        <input id="shadowblur-slider-area" data-slider-id='shadowblur-slider' type="text" data-slider-min="0" data-slider-max="200" data-slider-step="1" data-slider-value="0"/>
+                        <label for="brush-shadow-blur-slider">Shadow Blur:</label>
+                        <input id="brush-shadow-blur-slider" data-slider-id='brush-shadow-blur-slider' type="text" data-slider-min="0" data-slider-max="200" data-slider-step="1" data-slider-value="0"/>
                     </div>
 
                     <div class="form-group">
-                        <label for="shadowoffsetx-slider-area">Shadow X-Axis:</label>
-                        <input id="shadowoffsetx-slider-area" data-slider-id='shadowoffsetx-slider' type="text" data-slider-min="-100" data-slider-max="100" data-slider-step="1" data-slider-value="0"/>
+                        <label for="brush-shadow-offset-x-slider">Shadow X-Axis:</label>
+                        <input id="brush-shadow-offset-x-slider" data-slider-id='brush-shadow-offset-x-slider' type="text" data-slider-min="-100" data-slider-max="100" data-slider-step="1" data-slider-value="0"/>
                     </div>
 
-                    <div class="form-group">
-                        <label for="shadowoffsety-slider-area">Shadow Y-Axis:</label>
-                        <input id="shadowoffsety-slider-area" data-slider-id='shadowoffsety-slider' type="text" data-slider-min="-100" data-slider-max="100" data-slider-step="1" data-slider-value="0"/>
+                    <div class="form-group disable-tools-area-next">
+                        <label for="brush-shadow-offset-y-slider">Shadow Y-Axis:</label>
+                        <input id="brush-shadow-offset-y-slider" data-slider-id='brush-shadow-offset-y-slider' type="text" data-slider-min="-100" data-slider-max="100" data-slider-step="1" data-slider-value="0"/>
                     </div>
 
                     <div class="form-group disable-tools-area">
-                        <label><input id="disable-tool-shadow" type="checkbox" value="0"> Disable shadow</label>
+                        <label><input id="disable-tool-shadow" type="checkbox" value="0"> Disable shadow effect</label>
                     </div>
                 </div>
             </div>
@@ -152,20 +118,94 @@
     </div>
 
 
-
     <div class="main-content">
-        <div id="canvas-container">
-            <canvas id="canvas"></canvas>
-        </div>
+        <div id="canvas-mouse-tool-show"></div>
 
         <div class="canvas-toolbar">
-            <div class="form-group">
-                <label for="canvas-background-color">Canvas Background Color:</label>
-                <input id="canvas-background-color" type="hidden" class="form-control" value="rgb(255, 255, 255, 1)"/>
+            <div class="row">
+                <div class="col-md-2">
+                    <button id="canvas-clear-button" class="btn btn-danger toolbar-helper"><i class="fa fa-refresh"></i> Clear Canvas</button>
+                </div>
+
+                <div class="col-md-7">
+                    <button id="canvas-undo-button" class="btn btn-info"><i class="fa fa-undo"></i> Undo</button>
+                    <button id="canvas-redo-button" class="btn btn-info disabled">Redo <i class="fa fa-repeat"></i></button>
+                </div>
+
+                <div class="col-md-3">
+                    <button id="canvas-settings-button" type="button" class="btn btn-primary float-right" data-toggle="modal" data-target="#canvas-settings-modal">
+                        <i class="fa fa-cog"></i> Settings
+                    </button>
+                </div>
             </div>
+        </div>
+
+        <div id="sketch">
+            <canvas id="paint"></canvas>
         </div>
     </div>
 
+
+
+    <div class="modal fade" id="canvas-settings-modal" tabindex="-1" role="dialog">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Settings</h5>
+
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+
+                <div class="modal-body">
+
+                    <div class="settings-group">
+                        <h4>Canvas Settings</h4>
+
+                        <div class="form-group">
+                            <div class="row">
+                                <div class="col-md-8 offset-md-1">
+                                    <label for="canvas-cursor-color-picker">Canvas Cursor Color:</label>
+                                </div>
+
+                                <div class="col-md-2">
+                                    <input id="canvas-cursor-color-picker" type="hidden" class="form-control" value="rgb(0, 0, 0)"/>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <div class="row">
+                                <div class="col-md-8 offset-md-1">
+                                    <label for="canvas-background-color-picker">Canvas Background Color:</label>
+                                </div>
+
+                                <div class="col-md-2">
+                                    <input id="canvas-background-color-picker" type="hidden" class="form-control" value="rgb(255, 255, 255, 1)"/>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <br />
+
+                    <div class="settings-group">
+                        <h4>Download Your Creation</h4>
+
+                        <div class="form-group">
+                            <div class="row">
+                                <div class="col-md-12 text-align-center">
+                                    <button class="btn btn-info" id="download-canvas-image"><i class="fa fa-download"></i> Download Image</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
 
 
     <!--<h2>Discussion</h2>-->
@@ -200,8 +240,10 @@
 
 
     <script src="//code.jquery.com/jquery-3.3.1.min.js" crossorigin="anonymous"></script>
+    <script src="//unpkg.com/popper.js@1.14.6/dist/umd/popper.min.js"></script>
     <script src="//stackpath.bootstrapcdn.com/bootstrap/4.2.1/js/bootstrap.min.js"></script>
     <script src="//cdnjs.cloudflare.com/ajax/libs/bootstrap-slider/10.6.0/bootstrap-slider.min.js"></script>
+    <script src="//cdn.jsdelivr.net/npm/jquery.hotkeys@0.1.0/jquery.hotkeys.min.js"></script>
     <script src="//cdn.rawgit.com/jwarby/jquery-awesome-cursor/master/dist/jquery.awesome-cursor.min.js"></script>
 
     <script type="text/javascript" src="./socket.io/socket.io.js"></script>
