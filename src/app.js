@@ -37,12 +37,21 @@ function response (req, res) {
     })
 }
 
-io.on('connection', (socket) => {
-    socket.on('send message', ({ message, name }, callback) => {
-        if (message && name) {
-            io.sockets.emit('update messages', { message, name })
+// array of all lines drawn
+let pointHistory = [];
 
-            callback()
-        }
-    })
+io.on('connection', (socket) => {
+    for (var i in pointHistory) {
+        socket.emit('draw_line', { points: pointHistory[i] } )
+    }
+
+    // add handler for message type "draw_line".
+    socket.on('draw_line', function (data) {
+        // add received line to history
+        pointHistory.push(data.points);
+
+        // send line to all clients
+        io.emit('draw_line', { points: data.points });
+    });
+
 })

@@ -1,42 +1,54 @@
 $(document).ready(() => {
-    $('[data-toggle="tooltip"]').not( ":even" ).tooltip();
 
-    // Page preloader
-    setTimeout(function() {
-        $('.page-preloader').remove('.page-preloader')
-        $('.page-preloader').fadeOut(500)
-    }, 1000)
+    let socket = io.connect()
 
 
-    // Set up Canvas
-    let canvas = document.querySelector('#paint')
-    let canvasContext = canvas.getContext('2d')
-
-    let sketch = document.querySelector('#sketch')
-    let sketchStyle = getComputedStyle(sketch)
-
-    canvas.width = parseInt(sketchStyle.getPropertyValue('width'))
-    canvas.height = parseInt(sketchStyle.getPropertyValue('height'))
-
-
-    // Creating a temporary canvas
-    let temporaryCanvas = document.createElement('canvas')
-    let temporaryCanvasContext = temporaryCanvas.getContext('2d')
-
-    temporaryCanvas.id = 'temporary-canvas'
-    temporaryCanvas.width = canvas.width
-    temporaryCanvas.height = canvas.height
-
-    sketch.appendChild(temporaryCanvas)
-
-
-    $(temporaryCanvas).contextmenu(function(e) {
-        e.preventDefault();
-        e.stopPropagation();
-    });
+    // Elements
+    let pagePreloader = $('.page-preloader')
+    let canvasShortcutsButton = $('#canvas-shortcuts-button')
+    let toolSelectorButton = $('.tool-selector-button')
+    let canvasMouseToolShow = $( '#canvas-mouse-tool-show' )
+    let eraserSizeSlider = $("#eraser-size-slider")
+    let brushColorPicker = $("#brush-color-picker")
+    let brushSizeSlider = $("#brush-size-slider")
+    let brushOpacitySlider = $("#brush-opacity-slider")
+    let brushShadowBlurSlider = $("#brush-shadow-blur-slider")
+    let brushShadowOffsetX = $("#brush-shadow-offset-x-slider")
+    let brushShadowOffsetY = $("#brush-shadow-offset-y-slider")
+    let downloadCanvasImageButton = $('#download-canvas-image-button')
+    let disableToolShadowCheckbox = $("#disable-tool-shadow-checkbox")
+    let canvasColorPickerModal = $('#canvas-color-picker-modal')
+    let canvasHelpModal = $('#canvas-help-modal')
+    let canvasClearButton = $('#canvas-clear-button')
+    let shortcutTooltipHelpersBrush = $('.shortcut-tooltip-helpers-brush')
+    let shortcutTooltipHelpersEraser = $('.shortcut-tooltip-helpers-eraser')
+    let canvasUndoButton = $('#canvas-undo-button')
+    let canvasRedoButton = $('#canvas-redo-button')
+    let canvasHelpButton = $('#canvas-help-button')
+    let canvasCursorColorPicker = $('#canvas-cursor-color-picker')
+    let brushLineCapDropdown = $('#brush-line-cap-dropdown')
+    let brushShadowColorPicker = $('#brush-shadow-color-picker')
+    let canvasControlsGroupEraser = $('.canvas-controls-group-eraser')
+    let canvasControlsGroupBrush = $('.canvas-controls-group-brush')
 
 
     // Variables
+    let toolSizeMax = 300
+    let toolSizeMin = 1
+
+    let brushOpacityMin = 0.1
+    let brushOpacityMax = 1
+
+    let shortcutTooltipHelpersClass = 'shortcut-tooltip-helpers'
+    let canvasMouseUsedClass = 'canvas-mouse-used'
+    let shortcutClickAnimateClass = 'shortcut-click-animate'
+    let shortcutClickAnimateDisabledClass = 'shortcut-click-animate disabled'
+
+    let sliderInputEvents = 'slide slideStop'
+
+    let pressedShortcutQ = false
+    let showingTooltips = false
+
     let mouse = {x: 0, y: 0}
 
     let lastPageX = 0
@@ -44,38 +56,25 @@ $(document).ready(() => {
 
     let graphPoints = []
 
+    let swatchColors = []
 
-    let swatchColors = [
-        '#ffffff', '#000000', '#ef9a9a', '#90caf9', '#a5d6a7', '#fff59d', '#ffcc80',
-        '#f44336', '#2196f3', '#4caf50', '#ffeb3b', '#ff9800', '#795548', '#9e9e9e'
-    ]
+    for ( var i = 1; i < 15; i++ ) {
+        swatchColors.unshift(getRandomColor(true))
+    }
 
-    let swatchColorsUse = swatchColors.slice( 0, 12 );
+    loadModalColorPickerColors()
 
-    let modalColorPickerItemsCounter = 0
-    let modalColorPickerItems = []
+    // Load modal color picker colors
+    function loadModalColorPickerColors() {
+        $('.modal-color-picker-item-container').each(function( index ) {
+            let item = $( this )
+            let color = swatchColors[index]
 
-    $( '.modal-color-picker-item' ).each(function( i ) {
-        let squareItem = $( this )
+            item.html( '<div data-color="' + color + '" style="background: ' + color + '" class="modal-color-picker-item"><span>' + color + '</span></div>'  )
+        });
+    }
 
-        let itemClass = 'modal-color-picker-item-' + i
-
-        modalColorPickerItems.push(itemClass)
-
-        squareItem.addClass(itemClass)
-
-        let squareColor = getRandomRGB()
-
-        if ( swatchColorsUse.length > 0 ) {
-            squareColor = swatchColorsUse.pop()
-        }
-
-        squareItem.css( 'background', squareColor )
-        squareItem.html( '<span>' + squareColor + '</span>'  )
-    });
-
-
-    let initialBrushColor = getRandomRGB()
+    let initialBrushColor = getRandomColor(true)
     let toolType = 'brush'
 
     let brushOptions = {
@@ -100,27 +99,98 @@ $(document).ready(() => {
 
     let allowToolControls = true
 
+
+
+
+    // Set up Canvas
+    let canvasContainer = $('#canvas-container')
+
+    let canvas = document.getElementById('actual-canvas');
+    let canvasContext = canvas.getContext('2d')
+
+    let temporaryCanvas = document.getElementById('temporary-canvas');
+    let temporaryCanvasContext = temporaryCanvas.getContext('2d')
+
+    let canvasContainerWidth = canvasContainer.outerWidth()
+    let canvasContainerHeight = canvasContainer.outerHeight()
+
+    canvas.setAttribute("width", canvasContainerWidth);
+    canvas.setAttribute("height", canvasContainerHeight);
+    canvas.style.width = canvasContainerWidth + "px";
+    canvas.style.height = canvasContainerHeight + "px";
+    canvasContext.canvas.width = canvasContainerWidth
+    canvasContext.canvas.height = canvasContainerHeight
+
+    temporaryCanvas.setAttribute("width", canvasContainerWidth);
+    temporaryCanvas.setAttribute("height", canvasContainerHeight);
+    temporaryCanvas.style.width = canvasContainerWidth + "px";
+    temporaryCanvas.style.height = canvasContainerHeight + "px";
+    temporaryCanvasContext.canvas.width = canvasContainerWidth
+    temporaryCanvasContext.canvas.height = canvasContainerHeight
+
+
+
+    socket.on('draw_line', function (data) {
+        console.log('in js triggered draw_line')
+
+        let socketGraphPoints = data.points
+
+        if ( socketGraphPoints && socketGraphPoints.length > 0 ) {
+            jQuery.each( socketGraphPoints, function( i, val ) {
+                temporaryCanvasContext.beginPath()
+
+                temporaryCanvasContext.arc(val.x, val.y, 10 / 2, 0, Math.PI * 2, !0)
+                temporaryCanvasContext.fill()
+                temporaryCanvasContext.closePath()
+            });
+        }
+        //
+        // canvasContext.beginPath()
+        // canvasContext.moveTo(lastMousex, lastMousey)
+        // canvasContext.lineTo(mousex, mousey)
+        //
+        // canvasContext.stroke()
+        //
+        //
+        // console.log('received: ')
+        // console.log()
+        //
+        // let line = data.graphPoints;
+        //
+        // canvasContext.beginPath()
+        //
+        // canvasContext.lineWidth = 2;
+        //
+        // canvasContext.moveTo(line[0].x * width, line[0].y * height)
+        //
+        // canvasContext.lineTo(line[1].x * width, line[1].y * height)
+        //
+        // canvasContext.stroke()
+    })
+
+
+    // Page preloader
+    setTimeout(function() {
+        pagePreloader.remove('.page-preloader')
+        pagePreloader.fadeOut(500)
+    }, 1000)
+
+
     updateCanvasCursor()
     updateCanvasMouse()
 
-    // Canvas background color
-    $('#canvas-background-color-picker').minicolors({
-        control: 'wheel',
-        position: 'botton right',
-        format: 'rgb',
-        opacity: true,
-        changeDelay: 250,
-        change: function (colorValue) {
-            if ( colorValue ) {
-                $(canvas).css('background', colorValue)
-            }
-        }
-    })
+
+
+    $(temporaryCanvas).contextmenu(function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+    });
+
+
 
     // Canvas cursor color
-    $('#canvas-cursor-color-picker').minicolors({
+    canvasCursorColorPicker.minicolors({
         control: 'wheel',
-        position: 'botton right',
         format: 'rgb',
         changeDelay: false,
         change: function (colorValue) {
@@ -132,49 +202,31 @@ $(document).ready(() => {
     })
 
 
-    // Eraser size
-    let eraserSizeSlider = $("#eraser-size-slider")
 
+    // Eraser size
     eraserSizeSlider.slider({
+        min: toolSizeMin,
+        max: toolSizeMax,
+        step: 1,
+        value: 25,
         tooltip: 'always',
         formatter: function(value) {
             return value + 'px'
         }
     })
 
-    eraserSizeSlider.on("slide slideStop", function(slideEvt) {
+    eraserSizeSlider.on(sliderInputEvents, function(slideEvt) {
         eraserOptions.size = parseInt(slideEvt.value)
 
         updateCanvasMouse()
     })
 
 
-    // Modal Brush color
-    let modalBrushColorPicker = $("#modal-brush-color-picker")
-
-    modalBrushColorPicker.minicolors({
-        format: 'rgb',
-        opacity: false,
-        swatches: swatchColors,
-        change: function (colorValue) {
-            if ( colorValue === '' ) {
-                brushOptions.color = initialBrushColor
-            } else {
-                brushOptions.color = colorValue
-            }
-
-            updateCanvasMouse('color')
-        }
-    })
-
-
     // Brush color
-    let brushColorPicker = $("#brush-color-picker")
-
     brushColorPicker.val( initialBrushColor )
 
     brushColorPicker.minicolors({
-        format: 'rgb',
+        format: 'hex',
         opacity: false,
         swatches: swatchColors,
         change: function (colorValue) {
@@ -189,46 +241,54 @@ $(document).ready(() => {
     })
 
 
-    // Brush size
-    let brushSizeSlider = $("#brush-size-slider")
 
+    // Brush size
     brushSizeSlider.slider({
+        min: toolSizeMin,
+        max: toolSizeMax,
+        step: 1,
+        value: 25,
         tooltip: 'always',
         formatter: function(value) {
             return value + 'px'
         }
     })
 
-    brushSizeSlider.on("slide slideStop", function(slideEvt) {
+    brushSizeSlider.on(sliderInputEvents, function(slideEvt) {
         brushOptions.size = parseInt(slideEvt.value)
 
         updateCanvasMouse()
     })
 
 
-    // Brush opacity
-    let brushOpacitySlider = $("#brush-opacity-slider")
 
+    // Brush opacity
     brushOpacitySlider.slider({
+        min: brushOpacityMin,
+        max: brushOpacityMax,
+        step: 0.01,
+        value: 1,
         tooltip: 'always',
         formatter: function(value) {
             return value
         }
     })
 
-    brushOpacitySlider.on("slide slideStop", function(slideEvt) {
+    brushOpacitySlider.on(sliderInputEvents, function(slideEvt) {
         brushOptions.opacity = slideEvt.value
     })
 
 
+
     // Brush line cap
-    $( "#brush-line-cap-dropdown" ).change(function() {
+    brushLineCapDropdown.change(function() {
         brushOptions.lineCap = $(this).val()
     })
 
 
+
     // Brush shadow color
-    $('#brush-shadow-color-picker').minicolors({
+    brushShadowColorPicker.minicolors({
         control: 'wheel',
         format: 'rgb',
         opacity: true,
@@ -243,9 +303,8 @@ $(document).ready(() => {
     })
 
 
-    // Brush shadow blur
-    let brushShadowBlurSlider = $("#brush-shadow-blur-slider")
 
+    // Brush shadow blur
     brushShadowBlurSlider.slider({
         tooltip: 'always',
         formatter: function(value) {
@@ -253,15 +312,13 @@ $(document).ready(() => {
         }
     })
 
-    brushShadowBlurSlider.on("slide slideStop", function(slideEvt) {
+    brushShadowBlurSlider.on(sliderInputEvents, function(slideEvt) {
         brushOptions.shadowBlur = slideEvt.value
     })
 
 
 
     // Brush shadow offset X
-    let brushShadowOffsetX = $("#brush-shadow-offset-x-slider")
-
     brushShadowOffsetX.slider({
         tooltip: 'always',
         formatter: function(value) {
@@ -269,14 +326,13 @@ $(document).ready(() => {
         }
     })
 
-    brushShadowOffsetX.on("slide slideStop", function(slideEvt) {
+    brushShadowOffsetX.on(sliderInputEvents, function(slideEvt) {
         brushOptions.shadowX = slideEvt.value
     })
 
 
-    // Brush shadow offset Y
-    let brushShadowOffsetY = $("#brush-shadow-offset-y-slider")
 
+    // Brush shadow offset Y
     brushShadowOffsetY.slider({
         tooltip: 'always',
         formatter: function(value) {
@@ -284,9 +340,10 @@ $(document).ready(() => {
         }
     })
 
-    brushShadowOffsetY.on("slide slideStop", function(slideEvt) {
+    brushShadowOffsetY.on(sliderInputEvents, function(slideEvt) {
         brushOptions.shadowY = slideEvt.value
     })
+
 
 
     // Mousemove event on temporary canvas
@@ -301,16 +358,25 @@ $(document).ready(() => {
 
 
     // Download canvas image
-    $('#download-canvas-image').on('click', function() {
-        let generateLink = document.createElement('a')
+    downloadCanvasImageButton.on('click', function() {
+        let button = $( this )
 
-        generateLink.download = "canvas-image-" + new Date().toLocaleString() + ".jpg"
-        generateLink.href = canvas.toDataURL("image/jpg").replace("image/jpg", "image/octet-stream")
+        if ( button && ! button.hasClass( 'disabled' ) ) {
+            button.addClass(shortcutClickAnimateDisabledClass)
 
-        generateLink.click()
-        generateLink.remove()
+            let generateLink = document.createElement('a')
+
+            generateLink.download = "canvas-image-" + new Date().toLocaleString() + ".jpg"
+            generateLink.href = canvas.toDataURL("image/jpg").replace("image/jpg", "image/octet-stream")
+
+            generateLink.click()
+            generateLink.remove()
+
+            setTimeout(() => {
+                button.removeClass(shortcutClickAnimateDisabledClass)
+            }, 1000);
+        }
     })
-
 
 
     // Mousedown event on temporary canvas
@@ -332,7 +398,7 @@ $(document).ready(() => {
                 temporaryCanvasContext.globalAlpha = brushOptions.opacity
                 temporaryCanvasContext.lineCap = brushOptions.lineCap
 
-                if ( $("#disable-tool-shadow").is(':checked') !== true ) {
+                if ( disableToolShadowCheckbox.is(':checked') !== true ) {
                     temporaryCanvasContext.shadowOffsetX = brushOptions.shadowX
                     temporaryCanvasContext.shadowOffsetY = brushOptions.shadowY
                     temporaryCanvasContext.shadowBlur    = brushOptions.shadowBlur
@@ -347,7 +413,7 @@ $(document).ready(() => {
                 temporaryCanvasContext.lineCap = brushOptionsInitial.lineCap
             }
 
-            temporaryCanvas.addEventListener('mousemove', onPaint, false)
+            $(temporaryCanvas).on( 'mousemove', onPaint );
 
             mouse.x = typeof e.offsetX !== 'undefined' ? e.offsetX : e.layerX
             mouse.y = typeof e.offsetY !== 'undefined' ? e.offsetY : e.layerY
@@ -358,24 +424,27 @@ $(document).ready(() => {
             graphPoints.push({x: mouse.x, y: mouse.y})
 
             onPaint()
-        } else if ( toolType === 'brush' ) {
-            let newBrushColor = getRandomRGB()
-
-            brushColorPicker.val( newBrushColor )
-            brushColorPicker.minicolors( 'value', newBrushColor );
+        } else if ( e.which === 3 && toolType === 'brush' ) {
+            setTimeout(() => {
+                canvasColorPickerModal.modal('toggle')
+            }, 100);
         }
     })
 
 
     // Mouseup event on temporary canvas
     $(temporaryCanvas).on('mouseup', (e) => {
-        temporaryCanvas.removeEventListener('mousemove', onPaint, false)
+        $(temporaryCanvas).off( 'mousemove', onPaint );
+
+        // temporaryCanvas.removeEventListener('mousemove', onPaint, false)
 
         // Writing down to real canvas now
         canvasContext.drawImage(temporaryCanvas, 0, 0)
 
         // Clearing temporary canvas
         temporaryCanvasContext.clearRect(0, 0, temporaryCanvas.width, temporaryCanvas.height)
+
+        socket.emit( 'draw_line', { points: graphPoints } );
 
         // Emptying up Pencil Points
         graphPoints = []
@@ -384,7 +453,7 @@ $(document).ready(() => {
 
     // Mousemove event on the whole document
     $(document).on('mousemove', (e) => {
-    // $('.sidenav-left, .main-content').on('mousemove', (e) => {
+
         let mouseSizeOption = brushOptions.size
 
         if ( toolType === 'eraser' ) {
@@ -394,17 +463,17 @@ $(document).ready(() => {
         lastPageX = e.pageX
         lastPageY = e.pageY
 
-        $('#canvas-mouse-tool-show').css({
-            left: e.pageX - ( 2 * Math.round( mouseSizeOption / 2 ) ) / 2,
-            top: e.pageY - ( 2 * Math.round( mouseSizeOption / 2 ) ) / 2
+        canvasMouseToolShow.css({
+            left: lastPageX - ( 2 * Math.round( mouseSizeOption / 2 ) ) / 2,
+            top: lastPageY - ( 2 * Math.round( mouseSizeOption / 2 ) ) / 2
         });
     })
 
 
     // Mouseenter event on temporary canvas
     $(temporaryCanvas).on('mouseenter', (e) => {
-        $('#canvas-mouse-tool-show').removeClass('canvas-mouse-used')
-        $('#canvas-mouse-tool-show').fadeIn(100)
+        canvasMouseToolShow.removeClass(canvasMouseUsedClass)
+        canvasMouseToolShow.fadeIn(100)
     })
 
 
@@ -459,11 +528,21 @@ $(document).ready(() => {
 
 
 
-    $('.tool-selector').on('click', function() {
+    // Keyboard shortcut - q - toggle between brush and eraser
+    $(document).on('keydown', null, 'q', function() {
+        toolSelectorButton.click()
+    });
+
+
+    toolSelectorButton.on('click', function() {
+        if ( showingTooltips === true ) {
+            canvasShortcutsButton.click()
+        }
+
         let button = $(this)
 
-        if ( button && ! button.hasClass( 'disabled' ) ) {
-            button.addClass('shortcut-click-animate')
+        if ( pressedShortcutQ !== true && button && ! button.hasClass( 'disabled' ) ) {
+            button.addClass(shortcutClickAnimateClass)
 
             let toolSelected = false
 
@@ -474,61 +553,45 @@ $(document).ready(() => {
             }
 
             if ( toolSelected !== false ) {
+                pressedShortcutQ = true
+
                 toolType = toolSelected
 
-                $('.tool-selector').removeClass('btn-primary disabled')
-                $('.tool-selector').addClass('btn-secondary')
+                toolSelectorButton.removeClass('btn-primary disabled')
+                toolSelectorButton.addClass('btn-secondary')
 
                 button.removeClass('btn-secondary')
                 button.addClass('btn-primary disabled')
 
-                $('.canvas-controls-group-eraser').slideToggle(200);
-                $('.canvas-controls-group-draw').slideToggle(200);
+                canvasControlsGroupEraser.slideToggle(200);
+                canvasControlsGroupBrush.slideToggle(200);
 
                 updateCanvasMouse()
                 updateCanvasCursor()
             }
 
             setTimeout(() => {
-                button.removeClass('shortcut-click-animate')
-            }, 500);
-        }
-    })
-
-
-    // Clear canvas
-    $('#canvas-clear-button').on('click', function() {
-        let button = $(this)
-
-        if ( button ) {
-            button.addClass('shortcut-click-animate')
-
-            canvasContext.clearRect(0, 0, canvas.width, canvas.height)
-
-            setTimeout(() => {
-                button.removeClass('shortcut-click-animate')
+                button.removeClass(shortcutClickAnimateClass)
+                pressedShortcutQ = false
             }, 300);
+
         }
     })
-
-
-
-
 
 
 
     // Undo canvas action
-    $('#canvas-undo-button').on('click', function() {
-        let button = $(this)
+    canvasUndoButton.on('click', function() {
+        let button = $( this )
 
-        if ( button ) {
-            button.addClass('shortcut-click-animate')
+        if ( button && ! button.hasClass( 'disabled' ) ) {
+            button.addClass(shortcutClickAnimateDisabledClass)
 
             // do the undo here
 
             setTimeout(() => {
-                button.removeClass('shortcut-click-animate')
-            }, 300);
+                button.removeClass(shortcutClickAnimateDisabledClass)
+            }, 1000);
         }
     })
 
@@ -536,48 +599,24 @@ $(document).ready(() => {
     // https://codepen.io/abidibo/pen/rmGBc
 
     // Redo canvas action
-    $('#canvas-redo-button').on('click', function() {
-        let button = $(this)
+    canvasRedoButton.on('click', function() {
+        let button = $( this )
 
-        if ( button ) {
-            button.addClass('shortcut-click-animate')
+        if ( button && ! button.hasClass( 'disabled' ) ) {
+            button.addClass(shortcutClickAnimateDisabledClass)
 
             // do the redo here
 
             setTimeout(() => {
-                button.removeClass('shortcut-click-animate')
-            }, 300);
+                button.removeClass(shortcutClickAnimateDisabledClass)
+            }, 1000);
         }
     })
-
-
-
-
-
-
-
-
-    // Keyboard shortcut - q - toggle between brush and eraser
-    $(document).on('keydown', null, 'q', function() {
-        let button = false
-
-        if ( toolType === 'brush' ) {
-            button = $('#tool-eraser-button')
-        } else if ( toolType === 'eraser' ) {
-            button = $('#tool-brush-button')
-        }
-
-        if ( button !== false ) {
-            button.click()
-        }
-    });
 
 
     // Keyboard shortcut - w - toggle shadow display checkbox
     $(document).on('keydown', null, 'w', function() {
         if ( toolType === 'brush' ) {
-            let disableToolShadowCheckbox = $("#disable-tool-shadow")
-
             if ( disableToolShadowCheckbox.is(':checked') === true ) {
                 disableToolShadowCheckbox.prop('checked', false)
             } else {
@@ -587,155 +626,217 @@ $(document).ready(() => {
     });
 
 
+
     // Keyboard shortcut - d - download canvas image
     $(document).on('keyup', null, 'd', function() {
-        $('#download-canvas-image').click()
+        downloadCanvasImageButton.click()
     });
 
 
-    // Keyboard shortcut - c - toggle color picker modal
+    // Keyboard shortcut - c - Choose random color
     $(document).on('keyup', null, 'c', function() {
-        $('#canvas-color-picker-modal').modal('toggle')
+        if (toolType === 'brush' ) {
+            // Right mouse click
+            let newBrushColor = getRandomColor(true)
+
+            brushColorPicker.val( newBrushColor )
+            brushColorPicker.minicolors( 'value', newBrushColor )
+
+            swatchColors.unshift( newBrushColor )
+            swatchColors.pop()
+
+            loadModalColorPickerColors()
+        }
     });
 
 
-    $('#canvas-color-picker-modal, #canvas-settings-modal').on('hidden.bs.modal', function (e) {
+
+    canvasHelpModal.on('hidden.bs.modal', function (e) {
         allowToolControls = true
 
-        $('#canvas-mouse-tool-show').show()
+        canvasMouseToolShow.show()
 
         updateCanvasMouse()
     })
 
-
-    $('#canvas-settings-modal').on('shown.bs.modal', function (e) {
+    canvasHelpModal.on('shown.bs.modal', function (e) {
         allowToolControls = false
 
-        $('#canvas-mouse-tool-show').hide()
+        canvasMouseToolShow.hide()
     })
 
 
 
+    $(canvasColorPickerModal).on('hidden.bs.modal', function (e) {
+        allowToolControls = true
 
-    $('#canvas-color-picker-modal').on('shown.bs.modal', function (e) {
+        canvasMouseToolShow.show()
+
+        updateCanvasMouse()
+    })
+
+    canvasColorPickerModal.on('shown.bs.modal', function (e) {
         allowToolControls = false
-        $('#canvas-mouse-tool-show').hide()
-
-        $( '.modal-color-picker-item' ).removeClass( 'item-selected' )
-
-        modalColorPickerItemsCounter = 0
-
-        console.log('modalColorPickerItemsCounter: ' + modalColorPickerItemsCounter);
-        let squareItem = $( '.modal-color-picker-item-' + modalColorPickerItemsCounter )
-
-        squareItem.addClass( 'item-selected' );
-
-        modalColorPickerItemsCounter++
+        canvasMouseToolShow.hide()
     })
 
 
-    $(document).on('keydown', null, 'n', function() {
-        console.log('going forward > : ');
+    $(document).on( 'click', '.modal-color-picker-item', function() {
+        let colorSelected = $( this ).data("color")
 
-        console.log('modalColorPickerItemsCounter: ' + modalColorPickerItemsCounter);
+        if ( colorSelected ) {
+            canvasColorPickerModal.modal('hide')
 
-        $( '.modal-color-picker-item' ).removeClass( 'item-selected' )
-
-        let squareItem = $( '.modal-color-picker-item-' + modalColorPickerItemsCounter )
-
-        squareItem.addClass( 'item-selected' );
-
-        if ( modalColorPickerItemsCounter === ( modalColorPickerItems.length - 1 ) ) {
-            modalColorPickerItemsCounter = 0
-        } else {
-            modalColorPickerItemsCounter++
+            brushColorPicker.val( colorSelected )
+            brushColorPicker.minicolors( 'value', colorSelected );
         }
     });
-
-    //
-    // $(document).on('keydown', null, 'b', function() {
-    //     if ( modalColorPickerItemsCounter === 0 ) {
-    //         modalColorPickerItemsCounter = modalColorPickerItems.length - 1
-    //     }
-    //
-    //     modalColorPickerItemsCounter--
-    //
-    //     console.log('going back > : ');
-    //
-    //     console.log('modalColorPickerItemsCounter: ' + modalColorPickerItemsCounter);
-    //
-    //     $( '.modal-color-picker-item' ).removeClass( 'item-selected' )
-    //
-    //     let squareItem = $( '.modal-color-picker-item-' + modalColorPickerItemsCounter )
-    //
-    //     squareItem.addClass( 'item-selected' );
-    //
-    // });
-
 
 
 
     // Keyboard shortcut - r - clear canvas
     $(document).on('keydown', null, 'r', function() {
-        $('#canvas-clear-button').click()
+        canvasClearButton.click()
     });
 
 
-    // Keyboard shortcut - s - toggle settings modal
-    $(document).on('keydown', null, 's', function() {
-        let button = $('#canvas-settings-button')
+    // Clear canvas
+    canvasClearButton.on('click', function() {
+        let button = $(this)
 
-        button.addClass('shortcut-click-animate')
+        if ( button ) {
+            button.addClass(shortcutClickAnimateClass)
 
-        button.click()
+            canvasContext.clearRect(0, 0, canvas.width, canvas.height)
 
-        setTimeout(() => {
-            button.removeClass('shortcut-click-animate')
-        }, 300);
+            setTimeout(() => {
+                button.removeClass(shortcutClickAnimateClass)
+            }, 300);
+        }
+    })
+
+
+
+    // Keyboard shortcut - t - toggle shortcut helper tooltips
+    $(document).on('keydown', null, 't', function() {
+        canvasShortcutsButton.click()
     });
+
+    // Toggle on shortcut helper tooltip
+    canvasShortcutsButton.on('click', function() {
+        let button = $( this )
+
+        if ( toolType === 'brush' ) {
+            shortcutTooltipHelpersBrush.addClass(shortcutTooltipHelpersClass)
+            shortcutTooltipHelpersEraser.removeClass(shortcutTooltipHelpersClass)
+        } else {
+            shortcutTooltipHelpersEraser.addClass(shortcutTooltipHelpersClass)
+            shortcutTooltipHelpersBrush.removeClass(shortcutTooltipHelpersClass)
+        }
+
+        if ( button && ! button.hasClass( 'disabled' ) ) {
+            button.addClass(shortcutClickAnimateDisabledClass)
+
+            if ( showingTooltips ) {
+                showingTooltips = false
+                let shortcutTooltipHelpers = $('.shortcut-tooltip-helpers')
+
+                shortcutTooltipHelpers.tooltip('hide')
+                shortcutTooltipHelpers.tooltip('disable')
+            } else {
+                showingTooltips = true
+
+                let shortcutTooltipHelpers = $('.shortcut-tooltip-helpers')
+
+                shortcutTooltipHelpers.tooltip('enable')
+                shortcutTooltipHelpers.tooltip('show')
+            }
+
+            setTimeout(() => {
+                button.removeClass(shortcutClickAnimateDisabledClass)
+            }, 300);
+        }
+    })
+
+
+    
+    // Keyboard shortcut - h - toggle help modal
+    $(document).on('keydown', null, 'h', function() {
+        canvasHelpButton.click()
+    });
+
+    // Canvas help button click
+    canvasHelpButton.on('click', function() {
+        let button = $( this )
+
+        if ( button && ! button.hasClass( 'disabled' ) ) {
+            button.addClass(shortcutClickAnimateDisabledClass)
+            canvasHelpModal.modal('toggle')
+
+            setTimeout(() => {
+                button.removeClass(shortcutClickAnimateDisabledClass)
+            }, 1000);
+        }
+    })
+
 
 
     // Keyboard shortcut - z - undo canvas action
     $(document).on('keydown', null, 'z', function() {
-        $('#canvas-undo-button').click()
+        canvasUndoButton.click()
     });
-
 
     // Keyboard shortcut - x - redo canvas action
     $(document).on('keydown', null, 'x', function() {
-        $('#canvas-redo-button').click()
+        canvasRedoButton.click()
     });
+
 
 
     // Keyboard shortcut - 1 - decrease opacity of brush
     $(document).on('keydown', null, '1', function() {
-        if ( toolType === 'brush' ) {
-            alterBrushOpacity('decrease')
-        }
+        alterBrushOpacity('decrease')
     });
 
 
     // Keyboard shortcut - 2 - increase opacity of brush
     $(document).on('keydown', null, '2', function() {
-        if ( toolType === 'brush' ) {
-            alterBrushOpacity('increase')
-        }
+        alterBrushOpacity('increase')
     });
 
+
+
+    // Alter brush opacity - increase/decrease opacity of brush
     function alterBrushOpacity(action) {
         if ( toolType === 'brush' && allowToolControls ) {
-            let newOpacity = brushOptions.opacity
+            let brushOpacityAlter = 0.05
 
-            if ( action === 'increase' ) {
-                newOpacity += 0.05
-            } else {
-                newOpacity -= 0.05
-            }
+            let currentBrushOpacity = brushOptions.opacity
 
-            if ( newOpacity >= 0.1 && newOpacity <= 1 ) {
-                brushOpacitySlider.slider( 'setValue', newOpacity );
+            if ( currentBrushOpacity <= brushOpacityMax && currentBrushOpacity >= brushOpacityMin ) {
+                let newBrushOpacity = currentBrushOpacity
 
-                brushOptions.opacity = newOpacity
+                if ( action === 'increase' ) {
+                    if ( currentBrushOpacity > ( brushOpacityMax - brushOpacityAlter ) ) {
+                        brushOpacityAlter = brushOpacityMax - currentBrushOpacity
+                    }
+
+                    newBrushOpacity += brushOpacityAlter
+                } else {
+                    if ( currentBrushOpacity < ( brushOpacityMin + brushOpacityAlter ) ) {
+                        brushOpacityAlter = currentBrushOpacity - brushOpacityMin
+                    }
+
+                    newBrushOpacity -= brushOpacityAlter
+                }
+
+                if ( newBrushOpacity > 0.1 && newBrushOpacity < 1 ) {
+                    newBrushOpacity = parseFloat((Math.ceil( newBrushOpacity * 20 - 0.5 ) / 20 ).toFixed(2))
+                }
+
+                brushOpacitySlider.slider( 'setValue', newBrushOpacity );
+
+                brushOptions.opacity = newBrushOpacity
 
                 updateCanvasMouse('opacity')
             }
@@ -743,55 +844,68 @@ $(document).ready(() => {
     }
 
 
-    $( document ).on('mousewheel DOMMouseScroll', function(e) {
-        if ( allowToolControls ) {
-            if(typeof e.originalEvent.detail == 'number' && e.originalEvent.detail !== 0) {
-                if(e.originalEvent.detail > 0) {
-                    alterToolSize('decrease')
-                } else if(e.originalEvent.detail < 0){
-                    alterToolSize('increase')
-                }
-            } else if (typeof e.originalEvent.wheelDelta == 'number') {
-                if(e.originalEvent.wheelDelta < 0) {
-                    alterToolSize('decrease')
-                } else if(e.originalEvent.wheelDelta > 0) {
-                    alterToolSize('increase')
-                }
+    // Capture scroll event on canvas (tool size alter)
+    $(temporaryCanvas).on('mousewheel DOMMouseScroll', function(e) {
+        if(typeof e.originalEvent.detail == 'number' && e.originalEvent.detail !== 0) {
+            if(e.originalEvent.detail > 0) {
+                alterToolSize('decrease')
+            } else if(e.originalEvent.detail < 0){
+                alterToolSize('increase')
+            }
+        } else if (typeof e.originalEvent.wheelDelta == 'number') {
+            if(e.originalEvent.wheelDelta < 0) {
+                alterToolSize('decrease')
+            } else if(e.originalEvent.wheelDelta > 0) {
+                alterToolSize('increase')
             }
         }
     });
 
 
+    // Alter tool size - increase/decrease size of brush/eraser
     function alterToolSize(action) {
-        if ( toolType === 'eraser' ) {
-            let newSize = eraserOptions.size
+        if ( allowToolControls && ( toolType === 'brush' || toolType === 'eraser' ) ) {
+            let toolSizeAlter = 20
 
-            if ( action === 'increase' ) {
-                newSize += 15
+            let currentToolSize = toolSizeAlter
+            let newToolSize = toolSizeAlter
+
+            if ( toolType === 'brush' ) {
+                currentToolSize = brushOptions.size
             } else {
-                newSize -= 15
+                currentToolSize = eraserOptions.size
             }
 
-            if ( newSize > 11 && newSize < 301 ) {
-                eraserSizeSlider.slider( 'setValue', newSize );
+            if ( currentToolSize <= toolSizeMax && currentToolSize >= toolSizeMin ) {
+                newToolSize = currentToolSize
 
-                eraserOptions.size = newSize
+                if ( action === 'increase' ) {
+                    if ( currentToolSize > ( toolSizeMax - toolSizeAlter ) ) {
+                        toolSizeAlter = toolSizeMax - currentToolSize
+                    }
 
-                updateCanvasMouse('size')
-            }
-        } else if ( toolType === 'brush' ) {
-            let newSize = brushOptions.size
+                    newToolSize += toolSizeAlter
+                } else {
+                    if ( currentToolSize < ( toolSizeMin + toolSizeAlter ) ) {
+                        toolSizeAlter = currentToolSize - toolSizeMin
+                    }
 
-            if ( action === 'increase' ) {
-                newSize += 15
-            } else {
-                newSize -= 15
-            }
+                    newToolSize -= toolSizeAlter
+                }
 
-            if ( newSize > 11 && newSize < 301 ) {
-                brushSizeSlider.slider( 'setValue', newSize );
+                if ( newToolSize > 10 ) {
+                    newToolSize = Math.round( newToolSize / 10 ) * 10
+                }
 
-                brushOptions.size = newSize
+                if ( toolType === 'brush' ) {
+                    brushSizeSlider.slider( 'setValue', newToolSize );
+
+                    brushOptions.size = newToolSize
+                } else {
+                    eraserSizeSlider.slider( 'setValue', newToolSize );
+
+                    eraserOptions.size = newToolSize
+                }
 
                 updateCanvasMouse('size')
             }
@@ -823,26 +937,25 @@ $(document).ready(() => {
                 '-webkit-border-radius':  mouseSize / 2
             }
 
-            $('#canvas-mouse-tool-show').css( mouseCSS )
+            canvasMouseToolShow.css( mouseCSS )
 
             if ( action === 'size' || action === 'opacity' || action === 'color' ) {
-                if ( $('#canvas-mouse-tool-show').hasClass('canvas-mouse-used') ) {
-                    $('#canvas-mouse-tool-show').addClass('canvas-mouse-used')
+                if ( canvasMouseToolShow.hasClass(canvasMouseUsedClass) ) {
+                    canvasMouseToolShow.addClass(canvasMouseUsedClass)
                 }
             } else {
                 if ( toolType === 'eraser' ) {
-                    $('#canvas-mouse-tool-show').removeClass('canvas-mouse-used')
+                    canvasMouseToolShow.removeClass(canvasMouseUsedClass)
                 } else {
-                    $('#canvas-mouse-tool-show').addClass('canvas-mouse-used')
+                    canvasMouseToolShow.addClass(canvasMouseUsedClass)
                 }
             }
 
-            $('#canvas-mouse-tool-show').fadeIn(100)
+            canvasMouseToolShow.fadeIn(100)
         } else {
-            $('#canvas-mouse-tool-show').hide()
+            canvasMouseToolShow.hide()
         }
     }
-
 
 
     // Update canvas cursor
@@ -861,14 +974,19 @@ $(document).ready(() => {
     }
 
 
-    // Update random RGB color
-    function getRandomRGB() {
-        let num = Math.round(0xffffff * Math.random())
+    // Get random color (RGB/HEX)
+    function getRandomColor(hex) {
+        if ( hex === true ) {
+            return "#000000".replace(/0/g,function(){return (~~(Math.random()*16)).toString(16)})
+        } else {
+            let num = Math.round(0xffffff * Math.random())
 
-        let r = num >> 16
-        let g = num >> 8 & 255
-        let b = num & 255
+            let r = num >> 16
+            let g = num >> 8 & 255
+            let b = num & 255
 
-        return 'rgb(' + r + ', ' + g + ', ' + b + ')'
+            return 'rgb(' + r + ', ' + g + ', ' + b + ')'
+        }
+
     }
 })

@@ -7,6 +7,8 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
 
+    <link rel="shortcut icon" href="./assets/images/favicon.ico">
+
     <link rel="stylesheet" href="//stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css">
     <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/bootstrap-slider/10.6.0/css/bootstrap-slider.css">
     <link rel="stylesheet" href="//stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
@@ -16,6 +18,8 @@
 
 
 <body>
+    <div id="canvas-mouse-tool-show"></div>
+
     <div class="page-preloader">
         <div class="page-preloader-center">
             <div class="page-preloader-center-absolute">
@@ -32,170 +36,172 @@
         </div>
     </div>
 
-    <div class="sidenav-left">
-        <h1>Let's Draw!</h1>
+    <div class="page-content">
+        <div class="row">
+            <div class="col-md-3">
+                <div class="sidenav-left">
 
-        <div class="sidenav-widget canvas-controls">
-            <div class="toolbar-helpers">
-                <div class="row">
-                    <div class="col-md-6">
-                        <button id="tool-brush-button" class="btn btn-primary tool-selector toolbar-helper disabled"><i class="fa fa-paint-brush"></i> Brush</button>
-                    </div>
-
-                    <div class="col-md-6">
-                        <button id="tool-eraser-button" class="btn btn-secondary tool-selector toolbar-helper"><i class="fa fa-eraser"></i> Eraser</button>
-                    </div>
-                </div>
-            </div>
-
-
-            <div class="canvas-controls-group-eraser">
-                <div class="canvas-controls-group">
-                    <div class="form-group">
-                        <label for="eraser-size-slider">Eraser Size:</label>
-                        <input id="eraser-size-slider" data-slider-id='eraser-size-slider' type="text" data-slider-min="1" data-slider-max="300" data-slider-step="1" data-slider-value="25"/>
-                    </div>
-                </div>
-            </div>
-
-
-            <div class="canvas-controls-group-draw">
-                <div class="canvas-controls-group">
-                    <div class="form-group">
-                        <label for="brush-size-slider">Brush Size:</label>
-                        <input id="brush-size-slider" data-slider-id='brush-size-slider' type="text" data-slider-min="1" data-slider-max="300" data-slider-step="1" data-slider-value="25"/>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="brush-color-picker">Brush Color:</label>
-                        <input id="brush-color-picker" type="hidden" class="form-control" value=""/>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="brush-opacity-slider">Brush Opacity:</label>
-                        <input id="brush-opacity-slider" data-slider-id='brush-opacity-slider' type="text" data-slider-min="0.1" data-slider-max="1" data-slider-step="0.01" data-slider-value="1"/>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="brush-line-cap-dropdown">Line Cap:</label>
-
-                        <select id="brush-line-cap-dropdown">
-                            <option value="round">round (default)</option>
-                            <option value="butt">butt</option>
-                            <option value="square">square</option>
-                        </select>
-                    </div>
-                </div>
-
-
-                <div class="canvas-controls-group">
-                    <div class="form-group">
-                        <label for="brush-shadow-color-picker">Shadow Color:</label>
-                        <input id="brush-shadow-color-picker" type="hidden" class="form-control"/>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="brush-shadow-blur-slider">Shadow Blur:</label>
-                        <input id="brush-shadow-blur-slider" data-slider-id='brush-shadow-blur-slider' type="text" data-slider-min="0" data-slider-max="200" data-slider-step="1" data-slider-value="0"/>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="brush-shadow-offset-x-slider">Shadow X-Axis:</label>
-                        <input id="brush-shadow-offset-x-slider" data-slider-id='brush-shadow-offset-x-slider' type="text" data-slider-min="-100" data-slider-max="100" data-slider-step="1" data-slider-value="0"/>
-                    </div>
-
-                    <div class="form-group disable-tools-area-next">
-                        <label for="brush-shadow-offset-y-slider">Shadow Y-Axis:</label>
-                        <input id="brush-shadow-offset-y-slider" data-slider-id='brush-shadow-offset-y-slider' type="text" data-slider-min="-100" data-slider-max="100" data-slider-step="1" data-slider-value="0"/>
-                    </div>
-
-                    <div class="form-group disable-tools-area">
-                        <label><input id="disable-tool-shadow" type="checkbox" value="0"> Disable shadow effect</label>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-
-    <div class="main-content">
-        <div id="canvas-mouse-tool-show"></div>
-
-        <div class="canvas-toolbar">
-            <div class="row">
-                <div class="col-md-2">
-                    <button id="canvas-clear-button" class="btn btn-danger toolbar-helper"><i class="fa fa-refresh"></i> Clear Canvas</button>
-                </div>
-
-                <div class="col-md-7">
-                    <button id="canvas-undo-button" class="btn btn-info"><i class="fa fa-undo"></i> Undo</button>
-                    <button id="canvas-redo-button" class="btn btn-info disabled">Redo <i class="fa fa-repeat"></i></button>
-                </div>
-
-                <div class="col-md-3">
-                    <button id="canvas-settings-button" type="button" class="btn btn-primary float-right" data-toggle="modal" data-target="#canvas-settings-modal">
-                        <i class="fa fa-cog"></i> Settings
-                    </button>
-                </div>
-            </div>
-        </div>
-
-        <div id="sketch">
-            <canvas id="paint"></canvas>
-        </div>
-    </div>
-
-
-    <div class="modal fade canvas-modal" id="canvas-settings-modal" tabindex="-1" role="dialog">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Settings</h5>
-
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-
-                <div class="modal-body">
-
-                    <div class="settings-group">
-                        <h4>Canvas Settings</h4>
-
-                        <div class="form-group">
+                    <div class="sidenav-widget canvas-controls">
+                        <div class="toolbar-helpers">
                             <div class="row">
-                                <div class="col-md-8 offset-md-1">
-                                    <label for="canvas-cursor-color-picker">Canvas Cursor Color:</label>
+                                <div class="col-md-6">
+                                    <button title="[Q]" id="tool-brush-button" class="shortcut-tooltip-helpers btn btn-primary tool-selector-button toolbar-helper disabled"><i class="fa fa-paint-brush"></i> Brush</button>
                                 </div>
 
-                                <div class="col-md-2">
-                                    <input id="canvas-cursor-color-picker" type="hidden" class="form-control" value="rgb(0, 0, 0)"/>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="form-group">
-                            <div class="row">
-                                <div class="col-md-8 offset-md-1">
-                                    <label for="canvas-background-color-picker">Canvas Background Color:</label>
-                                </div>
-
-                                <div class="col-md-2">
-                                    <input id="canvas-background-color-picker" type="hidden" class="form-control" value="rgb(255, 255, 255, 1)"/>
+                                <div class="col-md-6">
+                                    <button title="[Q]" id="tool-eraser-button" class="shortcut-tooltip-helpers btn btn-secondary tool-selector-button toolbar-helper"><i class="fa fa-eraser"></i> Eraser</button>
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    <br />
 
-                    <div class="settings-group">
-                        <h4>Download Your Creation</h4>
+                    <div class="canvas-controls-group-brush">
+                        <div class="sidenav-widget canvas-controls">
+                            <h4>Brush Settings</h4>
 
-                        <div class="form-group">
-                            <div class="row">
-                                <div class="col-md-12 text-align-center">
-                                    <button class="btn btn-info" id="download-canvas-image"><i class="fa fa-download"></i> Download Image</button>
+                            <div class="canvas-controls-group">
+                                <div class="form-group">
+                                    <div class="row">
+                                        <div class="col-md-4">
+                                            <label class="shortcut-tooltip-helpers shortcut-tooltip-helpers-brush" data-toggle="tooltip" title="[Mouse Wheel]" for="brush-size-slider">Size:</label>
+                                        </div>
+
+                                        <div class="col-md-8">
+                                            <input id="brush-size-slider" data-slider-id='brush-size-slider' type="text"/>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <div class="row">
+                                        <div class="col-md-4">
+                                            <label for="brush-color-picker">Color:</label>
+                                        </div>
+
+                                        <div class="col-md-8">
+                                            <input id="brush-color-picker" type="hidden" class="form-control" value=""/>
+                                        </div>
+                                    </div>
+
+                                </div>
+
+                                <div class="form-group">
+                                    <div class="row">
+                                        <div class="col-md-4">
+                                            <label class="shortcut-tooltip-helpers shortcut-tooltip-helpers-brush" data-toggle="tooltip" title="[1/2]" for="brush-opacity-slider">Opacity:</label>
+                                        </div>
+
+                                        <div class="col-md-8">
+                                            <input id="brush-opacity-slider" data-slider-id='brush-opacity-slider' type="text"/>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <div class="row">
+                                        <div class="col-md-4">
+                                            <label for="brush-line-cap-dropdown">Line Cap:</label>
+                                        </div>
+
+                                        <div class="col-md-8">
+                                            <select id="brush-line-cap-dropdown">
+                                                <option value="round">round (default)</option>
+                                                <option value="butt">butt</option>
+                                                <option value="square">square</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+
+                        <div class="sidenav-widget canvas-controls">
+                            <h4>Shadow Settings</h4>
+
+                            <div class="canvas-controls-group">
+                                <div class="form-group">
+                                    <div class="row">
+                                        <div class="col-md-4">
+                                            <label for="brush-shadow-color-picker">Color:</label>
+                                        </div>
+
+                                        <div class="col-md-8">
+                                            <input id="brush-shadow-color-picker" type="hidden" class="form-control"/>
+                                        </div>
+                                    </div>
+
+                                </div>
+
+                                <div class="form-group">
+                                    <div class="row">
+                                        <div class="col-md-4">
+                                            <label for="brush-shadow-blur-slider">Blur:</label>
+                                        </div>
+
+                                        <div class="col-md-8">
+                                            <input id="brush-shadow-blur-slider" data-slider-id='brush-shadow-blur-slider' type="text" data-slider-min="0" data-slider-max="200" data-slider-step="1" data-slider-value="0"/>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <div class="row">
+                                        <div class="col-md-4">
+                                            <label for="brush-shadow-offset-x-slider">Offset (X):</label>
+                                        </div>
+
+                                        <div class="col-md-8">
+                                            <input id="brush-shadow-offset-x-slider" data-slider-id='brush-shadow-offset-x-slider' type="text" data-slider-min="-100" data-slider-max="100" data-slider-step="1" data-slider-value="0"/>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="form-group disable-tools-area-next">
+                                    <div class="row">
+                                        <div class="col-md-4">
+                                            <label for="brush-shadow-offset-y-slider">Offset (Y):</label>
+                                        </div>
+
+                                        <div class="col-md-8">
+                                            <input id="brush-shadow-offset-y-slider" data-slider-id='brush-shadow-offset-y-slider' type="text" data-slider-min="-100" data-slider-max="100" data-slider-step="1" data-slider-value="0"/>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="form-group disable-tools-area">
+                                    <div class="row">
+                                        <div class="col-md-4"></div>
+
+                                        <div class="col-md-8">
+                                            <label class="shortcut-tooltip-helpers shortcut-tooltip-helpers-brush" data-toggle="tooltip" title="[W]"><input id="disable-tool-shadow-checkbox" type="checkbox" value="0"> Disable shadow effect</label>
+                                        </div>
+                                    </div>
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+
+
+                    <div class="canvas-controls-group-eraser">
+                        <div class="sidenav-widget canvas-controls">
+                            <h4>Eraser Settings</h4>
+
+                            <div class="canvas-controls-group">
+                                <div class="form-group">
+                                    <div class="row">
+                                        <div class="col-md-4">
+                                            <label class="shortcut-tooltip-helpers-eraser" data-toggle="tooltip" title="[Mouse Wheel err]" for="eraser-size-slider">Size:</label>
+                                        </div>
+
+                                        <div class="col-md-8">
+                                            <input id="eraser-size-slider" data-slider-id='eraser-size-slider' type="text"/>
+                                        </div>
+                                    </div>
+
                                 </div>
                             </div>
                         </div>
@@ -203,55 +209,60 @@
 
                 </div>
             </div>
-        </div>
-    </div>
 
+            <div class="col-md-9">
+                <h1>Let's Draw!</h1>
 
+                <div class="main-content">
+                    <div class="canvas-toolbar">
+                        <div class="row">
+                            <div class="col-md-4">
+                                <button data-placement="bottom" data-toggle="tooltip" title="[R]" id="canvas-clear-button" class="shortcut-tooltip-helpers btn btn-danger toolbar-helper">
+                                    <i class="fa fa-refresh"></i> Clear
+                                </button>
 
-    <div class="modal fade canvas-modal" id="canvas-color-picker-modal" tabindex="-1" role="dialog">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Canvas Color Picker</h5>
+                                <button data-placement="bottom" data-toggle="tooltip" title="[D]" id="download-canvas-image-button" class="shortcut-tooltip-helpers btn btn-primary">
+                                    <i class="fa fa-download"></i> Download
+                                </button>
+                            </div>
 
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
+                            <div class="col-md-4 text-align-center">
+                                <button data-placement="bottom" data-toggle="tooltip" title="[Z]" id="canvas-undo-button" class="shortcut-tooltip-helpers btn btn-info">
+                                    <i class="fa fa-undo"></i> Undo
+                                </button>
 
-                <div class="modal-body">
+                                <button data-placement="bottom" data-toggle="tooltip" title="[X]" id="canvas-redo-button" class="shortcut-tooltip-helpers btn btn-info disabled">
+                                    Redo <i class="fa fa-repeat"></i>
+                                </button>
+                            </div>
 
-                    <div class="row">
-                        <div class="col-md-12">
-                            <div class="modal-color-picker">
-                                <div class="row">
-                                    <div class="col-md-3"><div class="modal-color-picker-item"></div></div>
-                                    <div class="col-md-3"><div class="modal-color-picker-item"></div></div>
-                                    <div class="col-md-3"><div class="modal-color-picker-item"></div></div>
-                                    <div class="col-md-3"><div class="modal-color-picker-item"></div></div>
-                                </div>
+                            <div class="col-md-4 text-align-right">
+                                <button data-placement="bottom" data-toggle="tooltip" title="[H]" id="canvas-help-button" class="shortcut-tooltip-helpers btn btn-primary">
+                                    <i class="fa fa-question-circle"></i> Help
+                                </button>
 
-                                <div class="row">
-                                    <div class="col-md-3"><div class="modal-color-picker-item"></div></div>
-                                    <div class="col-md-3"><div class="modal-color-picker-item"></div></div>
-                                    <div class="col-md-3"><div class="modal-color-picker-item"></div></div>
-                                    <div class="col-md-3"><div class="modal-color-picker-item"></div></div>
-                                </div>
-
-                                <div class="row">
-                                    <div class="col-md-3"><div class="modal-color-picker-item"></div></div>
-                                    <div class="col-md-3"><div class="modal-color-picker-item"></div></div>
-                                    <div class="col-md-3"><div class="modal-color-picker-item"></div></div>
-                                    <div class="col-md-3"><div class="modal-color-picker-item"></div></div>
-                                </div>
+                                <button data-placement="bottom" data-toggle="tooltip" title="[T]" id="canvas-shortcuts-button" class="shortcut-tooltip-helpers btn btn-primary">
+                                    <i class="fa fa fa-info-circle"></i> Shortcuts
+                                </button>
                             </div>
                         </div>
                     </div>
+
+
+
+
+                    <div id="canvas-container">
+                        <canvas id="actual-canvas" width="1200px" height="600px"></canvas>
+                        <canvas id="temporary-canvas" width="1200px" height="600px"></canvas>
+                    </div>
+
 
                 </div>
             </div>
         </div>
     </div>
+
+
 
 
     <!--<h2>Discussion</h2>-->
@@ -282,7 +293,150 @@
             <!--<p>Haha funny</p>-->
         <!--</div>-->
     <!--</div>-->
-    <!---->
+
+
+    <div class="modal fade canvas-modal" id="canvas-help-modal" tabindex="-1" role="dialog">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Keyboard/Mouse Shortcuts</h5>
+
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-sm-6">
+                            <p>
+                                <span class="shortcut-key">Q</span> Toggle between brush and eraser
+                            </p>
+
+                            <p>
+                                <span class="shortcut-key">W</span> Toggle shadow display checkbox
+                            </p>
+
+                            <p>
+                                <span class="shortcut-key">1</span> Decrease opacity of brush
+                            </p>
+
+                            <p>
+                                <span class="shortcut-key">2</span> Increase opacity of brush
+                            </p>
+
+                            <br />
+
+                            <p>
+                                <span class="shortcut-key">Right Mouse Click</span> Toggle color picker modal
+                            </p>
+
+                            <p>
+                                <span class="shortcut-key">Mouse Wheel Up</span> Increase brush/eraser size
+                            </p>
+
+                            <p>
+                                <span class="shortcut-key">Mouse Wheel Up</span> Decrease brush/eraser size
+                            </p>
+
+                            <br />
+                        </div>
+
+                        <div class="col-sm-6">
+                            <p>
+                                <span class="shortcut-key">R</span> Clear canvas
+                            </p>
+
+                            <p>
+                                <span class="shortcut-key">Z</span> Undo canvas action
+                            </p>
+
+                            <p>
+                                <span class="shortcut-key">X</span> Redo canvas action
+                            </p>
+
+                            <p>
+                                <span class="shortcut-key">C</span> Choose random color
+                            </p>
+
+                            <br />
+
+                            <p>
+                                <span class="shortcut-key">H</span> Toggle help modal
+                            </p>
+
+                            <p>
+                                <span class="shortcut-key">T</span> Toggle shortcut helper tooltips
+                            </p>
+
+                            <p>
+                                <span class="shortcut-key">D</span> Download canvas image
+                            </p>
+
+                            <br />
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <div class="modal fade canvas-modal" id="canvas-color-picker-modal" tabindex="-1" role="dialog">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Canvas Color Picker</h5>
+
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="text-align-center">
+                                <h4>
+                                    Previously randomly generated colors
+                                </h4>
+
+                                <p>
+                                    Click on any color square below to use that color for the brush.<br />
+                                    You can also click <span class="shortcut-key">C</span> key to generate a new color and add it to the list.
+                                </p>
+                            </div>
+
+                            <div class="modal-color-picker">
+                                <div class="row">
+                                    <div class="col-md-3"><div class="modal-color-picker-item-container"></div></div>
+                                    <div class="col-md-3"><div class="modal-color-picker-item-container"></div></div>
+                                    <div class="col-md-3"><div class="modal-color-picker-item-container"></div></div>
+                                    <div class="col-md-3"><div class="modal-color-picker-item-container"></div></div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-md-3"><div class="modal-color-picker-item-container"></div></div>
+                                    <div class="col-md-3"><div class="modal-color-picker-item-container"></div></div>
+                                    <div class="col-md-3"><div class="modal-color-picker-item-container"></div></div>
+                                    <div class="col-md-3"><div class="modal-color-picker-item-container"></div></div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-md-3"><div class="modal-color-picker-item-container"></div></div>
+                                    <div class="col-md-3"><div class="modal-color-picker-item-container"></div></div>
+                                    <div class="col-md-3"><div class="modal-color-picker-item-container"></div></div>
+                                    <div class="col-md-3"><div class="modal-color-picker-item-container"></div></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
 
 
     <script src="//code.jquery.com/jquery-3.3.1.min.js" crossorigin="anonymous"></script>
