@@ -1,6 +1,21 @@
 $(document).ready(() => {
+    // Generate 'unique' user socket ID
+    let socketUserID = Math.floor(100000000 + Math.random() * 900000000) + '-' + Math.floor(100000000 + Math.random() * 900000000)
 
-    let socket = io.connect()
+
+    // Connect to a socket
+    let socket = io.connect({
+        query: 'userid=' + socketUserID
+    })
+
+
+    // counter event - update users onine
+    socket.on( 'counter', function (data) {
+        if ( data && Number.isInteger( data ) ) {
+            $(".user-counter").text( data )
+        }
+    });
+
 
 
     // Elements
@@ -22,8 +37,6 @@ $(document).ready(() => {
     let canvasClearButton = $('#canvas-clear-button')
     let shortcutTooltipHelpersBrush = $('.shortcut-tooltip-helpers-brush')
     let shortcutTooltipHelpersEraser = $('.shortcut-tooltip-helpers-eraser')
-    let canvasUndoButton = $('#canvas-undo-button')
-    let canvasRedoButton = $('#canvas-redo-button')
     let canvasHelpButton = $('#canvas-help-button')
     let canvasCursorColorPicker = $('#canvas-cursor-color-picker')
     let brushLineCapDropdown = $('#brush-line-cap-dropdown')
@@ -48,6 +61,8 @@ $(document).ready(() => {
 
     let pressedShortcutQ = false
     let showingTooltips = false
+
+    let drawingOnCanvas = false
 
     let mouse = {x: 0, y: 0}
 
@@ -82,6 +97,7 @@ $(document).ready(() => {
         'opacity': 1,
         'color': initialBrushColor,
         'lineCap': 'round',
+        'shadowdisabled': false,
         'shadowX': 0,
         'shadowY': 0,
         'shadowBlur': 0,
@@ -128,45 +144,6 @@ $(document).ready(() => {
     temporaryCanvasContext.canvas.width = canvasContainerWidth
     temporaryCanvasContext.canvas.height = canvasContainerHeight
 
-
-
-    socket.on('draw_line', function (data) {
-        console.log('in js triggered draw_line')
-
-        let socketGraphPoints = data.points
-
-        if ( socketGraphPoints && socketGraphPoints.length > 0 ) {
-            jQuery.each( socketGraphPoints, function( i, val ) {
-                temporaryCanvasContext.beginPath()
-
-                temporaryCanvasContext.arc(val.x, val.y, 10 / 2, 0, Math.PI * 2, !0)
-                temporaryCanvasContext.fill()
-                temporaryCanvasContext.closePath()
-            });
-        }
-        //
-        // canvasContext.beginPath()
-        // canvasContext.moveTo(lastMousex, lastMousey)
-        // canvasContext.lineTo(mousex, mousey)
-        //
-        // canvasContext.stroke()
-        //
-        //
-        // console.log('received: ')
-        // console.log()
-        //
-        // let line = data.graphPoints;
-        //
-        // canvasContext.beginPath()
-        //
-        // canvasContext.lineWidth = 2;
-        //
-        // canvasContext.moveTo(line[0].x * width, line[0].y * height)
-        //
-        // canvasContext.lineTo(line[1].x * width, line[1].y * height)
-        //
-        // canvasContext.stroke()
-    })
 
 
     // Page preloader
@@ -346,17 +323,6 @@ $(document).ready(() => {
 
 
 
-    // Mousemove event on temporary canvas
-    $(temporaryCanvas).on('mousemove', (e) => {
-        mouse.x = typeof e.offsetX !== 'undefined' ? e.offsetX : e.layerX
-        mouse.y = typeof e.offsetY !== 'undefined' ? e.offsetY : e.layerY
-
-        lastPageX = mouse.x
-        lastPageY = mouse.y
-    })
-
-
-
     // Download canvas image
     downloadCanvasImageButton.on('click', function() {
         let button = $( this )
@@ -379,41 +345,23 @@ $(document).ready(() => {
     })
 
 
+
+    // Mousemove event on temporary canvas
+    $(temporaryCanvas).on('mousemove', (e) => {
+        mouse.x = typeof e.offsetX !== 'undefined' ? e.offsetX : e.layerX
+        mouse.y = typeof e.offsetY !== 'undefined' ? e.offsetY : e.layerY
+
+        lastPageX = mouse.x
+        lastPageY = mouse.y
+
+        selfDraw()
+    })
+
     // Mousedown event on temporary canvas
     $(temporaryCanvas).on('mousedown', (e) => {
         // Left click only for drawing
         if ( e.which === 1 ) {
-            temporaryCanvasContext.shadowOffsetX = brushOptionsInitial.shadowX
-            temporaryCanvasContext.shadowOffsetY = brushOptionsInitial.shadowY
-            temporaryCanvasContext.shadowBlur    = brushOptionsInitial.shadowBlur
-            temporaryCanvasContext.shadowColor   = brushOptionsInitial.shadowColor
-
-            temporaryCanvasContext.lineJoin = brushOptionsInitial.lineCap
-
-            if ( toolType === 'brush' ) {
-                temporaryCanvasContext.lineWidth = brushOptions.size
-                temporaryCanvasContext.strokeStyle = brushOptions.color
-                temporaryCanvasContext.fillStyle = brushOptions.color
-
-                temporaryCanvasContext.globalAlpha = brushOptions.opacity
-                temporaryCanvasContext.lineCap = brushOptions.lineCap
-
-                if ( disableToolShadowCheckbox.is(':checked') !== true ) {
-                    temporaryCanvasContext.shadowOffsetX = brushOptions.shadowX
-                    temporaryCanvasContext.shadowOffsetY = brushOptions.shadowY
-                    temporaryCanvasContext.shadowBlur    = brushOptions.shadowBlur
-                    temporaryCanvasContext.shadowColor   = brushOptions.shadowColor
-                }
-            } else {
-                temporaryCanvasContext.lineWidth = eraserOptions.size
-                temporaryCanvasContext.strokeStyle = eraserOptions.color
-                temporaryCanvasContext.fillStyle = eraserOptions.color
-
-                temporaryCanvasContext.globalAlpha = brushOptionsInitial.opacity
-                temporaryCanvasContext.lineCap = brushOptionsInitial.lineCap
-            }
-
-            $(temporaryCanvas).on( 'mousemove', onPaint );
+            drawingOnCanvas = true
 
             mouse.x = typeof e.offsetX !== 'undefined' ? e.offsetX : e.layerX
             mouse.y = typeof e.offsetY !== 'undefined' ? e.offsetY : e.layerY
@@ -423,7 +371,7 @@ $(document).ready(() => {
 
             graphPoints.push({x: mouse.x, y: mouse.y})
 
-            onPaint()
+            selfDraw()
         } else if ( e.which === 3 && toolType === 'brush' ) {
             setTimeout(() => {
                 canvasColorPickerModal.modal('toggle')
@@ -434,26 +382,13 @@ $(document).ready(() => {
 
     // Mouseup event on temporary canvas
     $(temporaryCanvas).on('mouseup', (e) => {
-        $(temporaryCanvas).off( 'mousemove', onPaint );
-
-        // temporaryCanvas.removeEventListener('mousemove', onPaint, false)
-
-        // Writing down to real canvas now
-        canvasContext.drawImage(temporaryCanvas, 0, 0)
-
-        // Clearing temporary canvas
-        temporaryCanvasContext.clearRect(0, 0, temporaryCanvas.width, temporaryCanvas.height)
-
-        socket.emit( 'draw_line', { points: graphPoints } );
-
-        // Emptying up Pencil Points
-        graphPoints = []
+        selfDraw(true)
     })
+
 
 
     // Mousemove event on the whole document
     $(document).on('mousemove', (e) => {
-
         let mouseSizeOption = brushOptions.size
 
         if ( toolType === 'eraser' ) {
@@ -466,8 +401,154 @@ $(document).ready(() => {
         canvasMouseToolShow.css({
             left: lastPageX - ( 2 * Math.round( mouseSizeOption / 2 ) ) / 2,
             top: lastPageY - ( 2 * Math.round( mouseSizeOption / 2 ) ) / 2
-        });
+        })
     })
+
+
+    // Drawing on canvas by user
+    function selfDraw(end) {
+        if ( drawingOnCanvas ) {
+            // Saving all the points in an array
+            graphPoints.push({x: mouse.x, y: mouse.y})
+
+            let data = {
+                points: graphPoints,
+                shadowdisabled: disableToolShadowCheckbox.is(':checked'),
+                tooltype: toolType,
+                socketuser: socketUserID
+            }
+
+            if ( toolType === 'brush' ) {
+                data.tooloptions = brushOptions
+            } else {
+                data.tooloptions = eraserOptions
+            }
+
+
+            if ( end === true ) {
+                drawingOnCanvas = false
+
+                // Writing down to real canvas now
+                canvasContext.drawImage(temporaryCanvas, 0, 0)
+
+                // Clearing temporary canvas
+                temporaryCanvasContext.clearRect(0, 0, temporaryCanvas.width, temporaryCanvas.height)
+
+                let dataEmit = {
+                    points: graphPoints,
+                    shadowdisabled: disableToolShadowCheckbox.is(':checked'),
+                    tooltype: toolType,
+                    socketuser: socketUserID
+                }
+
+                if ( toolType === 'brush' ) {
+                    dataEmit.tooloptions = brushOptions
+                } else {
+                    dataEmit.tooloptions = eraserOptions
+                }
+
+                socket.emit('draw-on-canvas', dataEmit);
+
+                // Emptying up Pencil Points
+                graphPoints = []
+            } else {
+                onDraw(data)
+            }
+        }
+    }
+
+
+
+    // Drawing on canvas by user/other users
+    function onDraw(data) {
+        let drawGraphPoints = data.points
+        let drawToolType = data.tooltype
+        let drawToolOptions = data.tooloptions
+        let shadowDisabled = data.shadowdisabled
+
+        temporaryCanvasContext.shadowOffsetX = brushOptionsInitial.shadowX
+        temporaryCanvasContext.shadowOffsetY = brushOptionsInitial.shadowY
+        temporaryCanvasContext.shadowBlur    = brushOptionsInitial.shadowBlur
+        temporaryCanvasContext.shadowColor   = brushOptionsInitial.shadowColor
+
+        temporaryCanvasContext.lineJoin = brushOptionsInitial.lineCap
+
+        if ( drawToolType === 'brush' ) {
+            temporaryCanvasContext.lineWidth = drawToolOptions.size
+            temporaryCanvasContext.strokeStyle = drawToolOptions.color
+            temporaryCanvasContext.fillStyle = drawToolOptions.color
+
+            temporaryCanvasContext.globalAlpha = drawToolOptions.opacity
+            temporaryCanvasContext.lineCap = drawToolOptions.lineCap
+
+            if ( shadowDisabled !== true ) {
+                temporaryCanvasContext.shadowOffsetX = drawToolOptions.shadowX
+                temporaryCanvasContext.shadowOffsetY = drawToolOptions.shadowY
+                temporaryCanvasContext.shadowBlur    = drawToolOptions.shadowBlur
+                temporaryCanvasContext.shadowColor   = drawToolOptions.shadowColor
+            }
+        } else {
+            temporaryCanvasContext.lineWidth = drawToolOptions.size
+            temporaryCanvasContext.strokeStyle = drawToolOptions.color
+            temporaryCanvasContext.fillStyle = drawToolOptions.color
+
+            temporaryCanvasContext.globalAlpha = brushOptionsInitial.opacity
+            temporaryCanvasContext.lineCap = brushOptionsInitial.lineCap
+        }
+
+        if ( drawGraphPoints.length < 3 ) {
+            let b = drawGraphPoints[0]
+
+            temporaryCanvasContext.beginPath()
+
+            temporaryCanvasContext.arc(b.x, b.y, temporaryCanvasContext.lineWidth / 2, 0, Math.PI * 2, !0)
+            temporaryCanvasContext.fill()
+            temporaryCanvasContext.closePath()
+        } else {
+            // Temporary canvas is always cleared up before drawing.
+            temporaryCanvasContext.clearRect(0, 0, temporaryCanvas.width, temporaryCanvas.height)
+
+            temporaryCanvasContext.beginPath()
+            temporaryCanvasContext.moveTo(drawGraphPoints[0].x, drawGraphPoints[0].y)
+
+            let i
+
+            for (i = 1; i < drawGraphPoints.length - 2; i++) {
+                let c = (drawGraphPoints[i].x + drawGraphPoints[i + 1].x) / 2
+                let d = (drawGraphPoints[i].y + drawGraphPoints[i + 1].y) / 2
+
+                temporaryCanvasContext.quadraticCurveTo(drawGraphPoints[i].x, drawGraphPoints[i].y, c, d)
+            }
+
+            // For the last 2 points
+            temporaryCanvasContext.quadraticCurveTo(
+                drawGraphPoints[i].x,
+                drawGraphPoints[i].y,
+                drawGraphPoints[i + 1].x,
+                drawGraphPoints[i + 1].y
+            )
+
+            temporaryCanvasContext.stroke()
+        }
+
+    }
+
+
+
+    // Event coming from sockets - somebody drew on canvas
+    socket.on('draw-on-canvas', function (data) {
+        if ( data && data.socketuser === socketUserID ) {
+            return null
+        } else {
+            if ( data ) {
+                onDraw(data)
+
+                canvasContext.drawImage(temporaryCanvas, 0, 0)
+                temporaryCanvasContext.clearRect(0, 0, temporaryCanvas.width, temporaryCanvas.height)
+            }
+        }
+    })
+
 
 
     // Mouseenter event on temporary canvas
@@ -481,50 +562,6 @@ $(document).ready(() => {
     $(temporaryCanvas).on('mouseout', (e) => {
         updateCanvasMouse()
     })
-
-
-    // Paint onto the temporary canvas
-    let onPaint = function() {
-        // Saving all the points in an array
-        graphPoints.push({x: mouse.x, y: mouse.y})
-
-        if ( graphPoints.length < 3 ) {
-            let b = graphPoints[0]
-
-            temporaryCanvasContext.beginPath()
-
-            temporaryCanvasContext.arc(b.x, b.y, temporaryCanvasContext.lineWidth / 2, 0, Math.PI * 2, !0)
-            temporaryCanvasContext.fill()
-            temporaryCanvasContext.closePath()
-
-            return
-        }
-
-        // Temporary canvas is always cleared up before drawing.
-        temporaryCanvasContext.clearRect(0, 0, temporaryCanvas.width, temporaryCanvas.height)
-
-        temporaryCanvasContext.beginPath()
-        temporaryCanvasContext.moveTo(graphPoints[0].x, graphPoints[0].y)
-
-        let i
-
-        for (i = 1; i < graphPoints.length - 2; i++) {
-            let c = (graphPoints[i].x + graphPoints[i + 1].x) / 2
-            let d = (graphPoints[i].y + graphPoints[i + 1].y) / 2
-
-            temporaryCanvasContext.quadraticCurveTo(graphPoints[i].x, graphPoints[i].y, c, d)
-        }
-
-        // For the last 2 points
-        temporaryCanvasContext.quadraticCurveTo(
-            graphPoints[i].x,
-            graphPoints[i].y,
-            graphPoints[i + 1].x,
-            graphPoints[i + 1].y
-        )
-
-        temporaryCanvasContext.stroke()
-    }
 
 
 
@@ -575,41 +612,6 @@ $(document).ready(() => {
                 pressedShortcutQ = false
             }, 300);
 
-        }
-    })
-
-
-
-    // Undo canvas action
-    canvasUndoButton.on('click', function() {
-        let button = $( this )
-
-        if ( button && ! button.hasClass( 'disabled' ) ) {
-            button.addClass(shortcutClickAnimateDisabledClass)
-
-            // do the undo here
-
-            setTimeout(() => {
-                button.removeClass(shortcutClickAnimateDisabledClass)
-            }, 1000);
-        }
-    })
-
-    // http://jsfiddle.net/m1erickson/AEYYq/
-    // https://codepen.io/abidibo/pen/rmGBc
-
-    // Redo canvas action
-    canvasRedoButton.on('click', function() {
-        let button = $( this )
-
-        if ( button && ! button.hasClass( 'disabled' ) ) {
-            button.addClass(shortcutClickAnimateDisabledClass)
-
-            // do the redo here
-
-            setTimeout(() => {
-                button.removeClass(shortcutClickAnimateDisabledClass)
-            }, 1000);
         }
     })
 
@@ -778,19 +780,6 @@ $(document).ready(() => {
             }, 1000);
         }
     })
-
-
-
-    // Keyboard shortcut - z - undo canvas action
-    $(document).on('keydown', null, 'z', function() {
-        canvasUndoButton.click()
-    });
-
-    // Keyboard shortcut - x - redo canvas action
-    $(document).on('keydown', null, 'x', function() {
-        canvasRedoButton.click()
-    });
-
 
 
     // Keyboard shortcut - 1 - decrease opacity of brush

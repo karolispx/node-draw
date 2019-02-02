@@ -211,12 +211,12 @@
             </div>
 
             <div class="col-md-9">
-                <h1>Let's Draw!</h1>
+                <h1>Let's Draw! <small>(Online: <span class="user-counter">1</span>)</small></h1>
 
                 <div class="main-content">
                     <div class="canvas-toolbar">
                         <div class="row">
-                            <div class="col-md-4">
+                            <div class="col-md-6">
                                 <button data-placement="bottom" data-toggle="tooltip" title="[R]" id="canvas-clear-button" class="shortcut-tooltip-helpers btn btn-danger toolbar-helper">
                                     <i class="fa fa-refresh"></i> Clear
                                 </button>
@@ -226,17 +226,7 @@
                                 </button>
                             </div>
 
-                            <div class="col-md-4 text-align-center">
-                                <button data-placement="bottom" data-toggle="tooltip" title="[Z]" id="canvas-undo-button" class="shortcut-tooltip-helpers btn btn-info">
-                                    <i class="fa fa-undo"></i> Undo
-                                </button>
-
-                                <button data-placement="bottom" data-toggle="tooltip" title="[X]" id="canvas-redo-button" class="shortcut-tooltip-helpers btn btn-info disabled">
-                                    Redo <i class="fa fa-repeat"></i>
-                                </button>
-                            </div>
-
-                            <div class="col-md-4 text-align-right">
+                            <div class="col-md-6 text-align-right">
                                 <button data-placement="bottom" data-toggle="tooltip" title="[H]" id="canvas-help-button" class="shortcut-tooltip-helpers btn btn-primary">
                                     <i class="fa fa-question-circle"></i> Help
                                 </button>
@@ -328,31 +318,7 @@
                             <br />
 
                             <p>
-                                <span class="shortcut-key">Right Mouse Click</span> Toggle color picker modal
-                            </p>
-
-                            <p>
-                                <span class="shortcut-key">Mouse Wheel Up</span> Increase brush/eraser size
-                            </p>
-
-                            <p>
-                                <span class="shortcut-key">Mouse Wheel Up</span> Decrease brush/eraser size
-                            </p>
-
-                            <br />
-                        </div>
-
-                        <div class="col-sm-6">
-                            <p>
                                 <span class="shortcut-key">R</span> Clear canvas
-                            </p>
-
-                            <p>
-                                <span class="shortcut-key">Z</span> Undo canvas action
-                            </p>
-
-                            <p>
-                                <span class="shortcut-key">X</span> Redo canvas action
                             </p>
 
                             <p>
@@ -360,7 +326,9 @@
                             </p>
 
                             <br />
+                        </div>
 
+                        <div class="col-sm-6">
                             <p>
                                 <span class="shortcut-key">H</span> Toggle help modal
                             </p>
@@ -371,6 +339,20 @@
 
                             <p>
                                 <span class="shortcut-key">D</span> Download canvas image
+                            </p>
+
+                            <br />
+
+                            <p>
+                                <span class="shortcut-key">Right Mouse Click</span> Toggle color picker modal
+                            </p>
+
+                            <p>
+                                <span class="shortcut-key">Mouse Wheel Up</span> Increase brush/eraser size
+                            </p>
+
+                            <p>
+                                <span class="shortcut-key">Mouse Wheel Up</span> Decrease brush/eraser size
                             </p>
 
                             <br />

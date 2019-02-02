@@ -37,21 +37,40 @@ function response (req, res) {
     })
 }
 
-// array of all lines drawn
-let pointHistory = [];
 
-io.on('connection', (socket) => {
-    for (var i in pointHistory) {
-        socket.emit('draw_line', { points: pointHistory[i] } )
+
+let userCount = 0;
+let usersConnected = []
+let socketUserID = null
+
+
+// User connecting
+io.on('connection', function (socket) {
+    // Increase user counter
+    socketUserID = socket.handshake.query.userid;
+
+    if ( socketUserID != null ) {
+        usersConnected.push(socketUserID)
+
+        io.emit( 'counter', userCount++ );
     }
 
-    // add handler for message type "draw_line".
-    socket.on('draw_line', function (data) {
-        // add received line to history
-        pointHistory.push(data.points);
 
-        // send line to all clients
-        io.emit('draw_line', { points: data.points });
-    });
+    // Handler for drawing
+    socket.on('draw-on-canvas', function (data) {
+        io.emit( 'draw-on-canvas', data );
+    })
+})
 
+// User disconnecting
+io.on('disconnect', function (socket) {
+    // Decrease user counter
+    if ( socketUserID != null ) {
+        let index = usersConnected.indexOf( socketUserID );
+
+        if ( index > -1 ) {
+            usersConnected.splice( index, 1 );
+            io.emit( 'counter', userCount--);
+        }
+    }
 })
